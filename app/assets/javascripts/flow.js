@@ -33,7 +33,7 @@ $(document).ready(function() {
         .links(graph.links)
         .layout(32);
 
-  // add in the links
+    // add in the links
     var link = svg.append("g").selectAll(".link")
         .data(graph.links)
       .enter().append("path")
@@ -42,17 +42,18 @@ $(document).ready(function() {
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
         .sort(function(a, b) { return b.dy - a.dy; });
 
-  // add a linear gradient for styling links
-  svg.append("linearGradient")
-          .attr("id", "line-gradient")
+    // add a linear gradient for styling links
+    svg.append("linearGradient")
+        .attr("id", "line-gradient")
+        .attr("gradientUnits", "userSpaceOnUse")
       .selectAll("stop")
-          .data([
-              {offset: "20%", color: "red"},
-              {offset: "80%", color: "black"}
-          ])
+        .data([
+          {offset: "20%", color: "red"},
+          {offset: "80%", color: "black"}
+        ])
       .enter().append("stop")
-          .attr("offset", function(d) { return d.offset; })
-          .attr("stop-color", function(d) { return d.color; });
+        .attr("offset", function(d) { return d.offset; })
+        .attr("stop-color", function(d) { return d.color; });
 
   // add the link titles
     link.append("title")
