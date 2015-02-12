@@ -39,21 +39,9 @@ $(document).ready(function() {
       .enter().append("path")
         .attr("class", "link")
         .attr("d", path)
+        .style("marker-end", function(d) { return 'url(#Triangle)'})
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
         .sort(function(a, b) { return b.dy - a.dy; });
-
-    // add a linear gradient for styling links
-    svg.append("linearGradient")
-        .attr("id", "line-gradient")
-        .attr("gradientUnits", "userSpaceOnUse")
-      .selectAll("stop")
-        .data([
-          {offset: "20%", color: "red"},
-          {offset: "80%", color: "black"}
-        ])
-      .enter().append("stop")
-        .attr("offset", function(d) { return d.offset; })
-        .attr("stop-color", function(d) { return d.color; });
 
   // add the link titles
     link.append("title")
@@ -97,12 +85,12 @@ $(document).ready(function() {
   // the function for moving the nodes
     function dragmove(d) {
       d3.select(this).attr("transform",
-          "translate(" + (
-              d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))
-          )
+          "translate("
+          + ( d.x = d.x )
           + "," + (
               d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
-          ) + ")");
+          )
+          + ")");
       sankey.relayout();
       link.attr("d", path);
     }
