@@ -42,6 +42,18 @@ $(document).ready(function() {
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
         .sort(function(a, b) { return b.dy - a.dy; });
 
+  // add a linear gradient for styling links
+  svg.append("linearGradient")
+          .attr("id", "line-gradient")
+      .selectAll("stop")
+          .data([
+              {offset: "20%", color: "red"},
+              {offset: "80%", color: "black"}
+          ])
+      .enter().append("stop")
+          .attr("offset", function(d) { return d.offset; })
+          .attr("stop-color", function(d) { return d.color; });
+
   // add the link titles
     link.append("title")
           .text(function(d) {
@@ -53,8 +65,7 @@ $(document).ready(function() {
         .data(graph.nodes)
       .enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")"; })
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       .call(d3.behavior.drag()
         .origin(function(d) { return d; })
         .on("dragstart", function() {
@@ -65,13 +76,10 @@ $(document).ready(function() {
     node.append("rect")
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth())
-        .style("fill", function(d) {
-        return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("stroke", function(d) {
-        return d3.rgb(d.color).darker(2); })
+        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
       .append("title")
-        .text(function(d) {
-        return d.name + "\n" + format(d.value); });
+        .text(function(d) { return d.name + "\n" + format(d.value); });
 
   // add in the title for the nodes
     node.append("text")
