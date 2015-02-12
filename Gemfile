@@ -29,7 +29,7 @@ gem 'spring',        group: :development
 
 group :test do
   gem 'shoulda-matchers'
-  gem 'poltergeist', git: 'git://github.com/jonleighton/poltergeist.git'
+  gem 'poltergeist'
   gem 'launchy'
   gem 'database_cleaner'
 end
