@@ -38,15 +38,15 @@ d3.sankey = function() {
 
   sankey.layout = function(iterations) {
     computeNodeLinks();
-    computeNodeValues();
-    computeNodeBreadths();
-    computeNodeDepths(iterations);
-    computeLinkDepths();
+    computeNodeHeights();
+    computeNodeXPositions();
+    computeNodeYPositions(iterations);
+    computeLinkYPositions();
     return sankey;
   };
 
   sankey.relayout = function() {
-    computeLinkDepths();
+    computeLinkYPositions();
     return sankey;
   };
 
@@ -77,7 +77,6 @@ d3.sankey = function() {
   };
 
   // Populate the sourceLinks and targetLinks for each node.
-  // Also, if the source and target are not objects, assume they are indices.
   function computeNodeLinks() {
     nodes.forEach(function(node) {
       node.sourceLinks = [];
@@ -86,6 +85,7 @@ d3.sankey = function() {
     links.forEach(function(link) {
       var source = link.source,
           target = link.target;
+      // If the source and target are numbers, assume they are indices.
       if (typeof source === "number") source = link.source = nodes[link.source];
       if (typeof target === "number") target = link.target = nodes[link.target];
       source.sourceLinks.push(link);
@@ -93,8 +93,8 @@ d3.sankey = function() {
     });
   }
 
-  // Compute the value (size) of each node by summing the associated links.
-  function computeNodeValues() {
+  // Compute the height of each node by summing the associated links.
+  function computeNodeHeights() {
     nodes.forEach(function(node) {
       node.value = Math.max(
         d3.sum(node.sourceLinks, value),
@@ -103,11 +103,11 @@ d3.sankey = function() {
     });
   }
 
-  // Iteratively assign the breadth (x-position) for each node.
-  // Nodes are assigned the maximum breadth of incoming neighbors plus one;
-  // nodes with no incoming links are assigned breadth zero, while
-  // nodes with no outgoing links are assigned the maximum breadth.
-  function computeNodeBreadths() {
+  // Iteratively assign the x-position for each node.
+  // Nodes are assigned the maximum height of incoming neighbors plus one;
+  // nodes with no incoming links are assigned height zero, while
+  // nodes with no outgoing links are assigned the maximum height.
+  function computeNodeXPositions() {
     var remainingNodes = nodes,
         nextNodes,
         x = 0;
@@ -129,7 +129,7 @@ d3.sankey = function() {
 
     //
     moveSinksRight(x);
-    scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
+    scaleNodeXPositions((size[0] - nodeWidth) / (x - 1));
   }
 
   function moveSourcesRight() {
@@ -148,21 +148,21 @@ d3.sankey = function() {
     });
   }
 
-  function scaleNodeBreadths(kx) {
+  function scaleNodeXPositions(kx) {
     nodes.forEach(function(node) {
       node.x *= kx;
     });
   }
 
-  function computeNodeDepths(iterations) {
-    var nodesByBreadth = d3.nest()
+  function computeNodeYPositions(iterations) {
+    var nodesByXPosition = d3.nest()
         .key(function(d) { return d.x; })
         .sortKeys(d3.ascending)
         .entries(nodes)
         .map(function(d) { return d.values; });
 
     //
-    initializeNodeDepth();
+    initializeNodeYPosition();
     resolveCollisions();
     for (var alpha = 1; iterations > 0; --iterations) {
       relaxRightToLeft(alpha *= .99);
@@ -171,12 +171,12 @@ d3.sankey = function() {
       resolveCollisions();
     }
 
-    function initializeNodeDepth() {
-      var ky = d3.min(nodesByBreadth, function(nodes) {
+    function initializeNodeYPosition() {
+      var ky = d3.min(nodesByXPosition, function(nodes) {
         return (size[1] - (nodes.length - 1) * nodePadding) / d3.sum(nodes, value);
       });
 
-      nodesByBreadth.forEach(function(nodes) {
+      nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
           node.y = i;
           node.dy = node.value * ky;
@@ -189,7 +189,7 @@ d3.sankey = function() {
     }
 
     function relaxLeftToRight(alpha) {
-      nodesByBreadth.forEach(function(nodes, breadth) {
+      nodesByXPosition.forEach(function(nodes, height) {
         nodes.forEach(function(node) {
           if (node.targetLinks.length) {
             var y = d3.sum(node.targetLinks, weightedSource) / d3.sum(node.targetLinks, value);
@@ -204,7 +204,7 @@ d3.sankey = function() {
     }
 
     function relaxRightToLeft(alpha) {
-      nodesByBreadth.slice().reverse().forEach(function(nodes) {
+      nodesByXPosition.slice().reverse().forEach(function(nodes) {
         nodes.forEach(function(node) {
           if (node.sourceLinks.length) {
             var y = d3.sum(node.sourceLinks, weightedTarget) / d3.sum(node.sourceLinks, value);
@@ -219,7 +219,7 @@ d3.sankey = function() {
     }
 
     function resolveCollisions() {
-      nodesByBreadth.forEach(function(nodes) {
+      nodesByXPosition.forEach(function(nodes) {
         var node,
             dy,
             y0 = 0,
@@ -227,7 +227,7 @@ d3.sankey = function() {
             i;
 
         // Push any overlapping nodes down.
-        nodes.sort(ascendingDepth);
+        nodes.sort(ascendingYPosition);
         for (i = 0; i < n; ++i) {
           node = nodes[i];
           dy = y0 - node.y;
@@ -251,15 +251,15 @@ d3.sankey = function() {
       });
     }
 
-    function ascendingDepth(a, b) {
+    function ascendingYPosition(a, b) {
       return a.y - b.y;
     }
   }
 
-  function computeLinkDepths() {
+  function computeLinkYPositions() {
     nodes.forEach(function(node) {
-      node.sourceLinks.sort(ascendingTargetDepth);
-      node.targetLinks.sort(ascendingSourceDepth);
+      node.sourceLinks.sort(ascendingTargetYPosition);
+      node.targetLinks.sort(ascendingSourceYPosition);
     });
     nodes.forEach(function(node) {
       var sy = 0, ty = 0;
@@ -273,11 +273,11 @@ d3.sankey = function() {
       });
     });
 
-    function ascendingSourceDepth(a, b) {
+    function ascendingSourceYPosition(a, b) {
       return a.source.y - b.source.y;
     }
 
-    function ascendingTargetDepth(a, b) {
+    function ascendingTargetYPosition(a, b) {
       return a.target.y - b.target.y;
     }
   }
