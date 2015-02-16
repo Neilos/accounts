@@ -94,8 +94,7 @@ $(document).ready(function() {
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       .call(d3.behavior.drag()
         .origin(function(d) { return d; })
-        .on("dragstart", function() {
-        this.parentNode.appendChild(this); })
+        .on("dragstart", function() { this.parentNode.appendChild(this); })
         .on("drag", dragmove));
 
   // add the rectangles for the nodes
@@ -103,7 +102,7 @@ $(document).ready(function() {
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth())
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        // .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+        .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
       .append("title")
         .text(function(d) { return d.name + "\n" + format(d.value); });
 
