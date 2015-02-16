@@ -65,7 +65,7 @@ d3.sankey = function() {
   };
 
   sankey.link = function() {
-    var curvature = .5;
+    var curvature = .7;
 
     function link(d) {
       if (d.direction === 'left->right') {
@@ -78,15 +78,14 @@ d3.sankey = function() {
     function leftToRightLink(d) {
       var arrowLength = d.dy * arrowheadScaleFactor;
       var straightSectionLength = d.dy / 4;
-      var x0 = d.source.x + d.source.dx + straightSectionLength + arrowLength,
+      var x0 = d.source.x + d.source.dx
           x1 = d.target.x - straightSectionLength - arrowLength,
           xi = d3.interpolateNumber(x0, x1),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
           y0 = d.source.y + d.sy + d.dy / 2,
           y1 = d.target.y + d.ty + d.dy / 2;
-      return "M" + (x0 - straightSectionLength - arrowLength) + "," + y0
-           + "L" + (x0 - straightSectionLength) + "," + y0
+      return "M" + x0 + "," + y0
            + "L" + x0 + "," + y0
            + "C" + x2 + "," + y0
            + " " + x3 + "," + y1
@@ -98,7 +97,7 @@ d3.sankey = function() {
       var arrowLength = d.dy * arrowheadScaleFactor;
       var straightSectionLength = d.dy / 4;
       var x0 = d.source.x + d.source.dx + straightSectionLength + arrowLength,
-          x1 = d.target.x - straightSectionLength - arrowLength,
+          x1 = d.target.x
           xi = d3.interpolateNumber(x0, x1),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
@@ -109,8 +108,7 @@ d3.sankey = function() {
            + "L" + x0 + "," + y0
            + "C" + x2 + "," + y0
            + " " + x3 + "," + y1
-           + " " + x1 + "," + y1
-           + "L" + (x1 + straightSectionLength + arrowLength) + "," + y1;
+           + " " + x1 + "," + y1;
     }
 
     link.curvature = function(_) {
