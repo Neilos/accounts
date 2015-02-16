@@ -17,13 +17,15 @@ class ApplicationController < ActionController::Base
         {"node" => 4,"name" => "node4"}
       ],
       "links" => [
-        {"source" => 0,"target" => 2,"value" => 5, "direction" => "cr->db"},
-        {"source" => 1,"target" => 2,"value" => 2, "direction" => "cr->db"},
-        {"source" => 1,"target" => 3,"value" => 2, "direction" => "cr->db"},
-        {"source" => 0,"target" => 4,"value" => 2, "direction" => "cr->db"},
-        {"source" => 2,"target" => 3,"value" => 2, "direction" => "cr->db"},
-        {"source" => 2,"target" => 4,"value" => 2, "direction" => "cr->db"},
-        {"source" => 3,"target" => 4,"value" => 4, "direction" => "cr->db"}
+        {"source" => 0,"target" => 2,"value" => 5, "direction" => "right->left"},
+        {"source" => 0,"target" => 3,"value" => 3, "direction" => "left->right"},
+        {"source" => 1,"target" => 2,"value" => 2, "direction" => "left->right"},
+        {"source" => 1,"target" => 3,"value" => 2, "direction" => "left->right"},
+        {"source" => 0,"target" => 4,"value" => 2, "direction" => "left->right"},
+        {"source" => 0,"target" => 4,"value" => 2, "direction" => "right->left"},
+        {"source" => 2,"target" => 3,"value" => 2, "direction" => "left->right"},
+        {"source" => 2,"target" => 4,"value" => 2, "direction" => "left->right"},
+        {"source" => 3,"target" => 4,"value" => 4, "direction" => "left->right"}
       ]
     }
     respond_to do |format|

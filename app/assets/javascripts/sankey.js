@@ -4,14 +4,7 @@ d3.sankey = function() {
       nodePadding = 8,
       size = [1, 1],
       nodes = [],
-      links = [],
-      arrowLength = 20;
-
-  sankey.arrowLength = function(_) {
-    if (!arguments.length) return arrowLength;
-    arrowLength = +_;
-    return sankey;
-  };
+      links = []
 
   sankey.nodeWidth = function(_) {
     if (!arguments.length) return nodeWidth;
@@ -61,71 +54,50 @@ d3.sankey = function() {
     var curvature = .5;
 
     function link(d) {
-      if (d.direction === 'cr->db') {
+      if (d.direction === 'left->right') {
         return leftToRightLink(d)
       } else {
         return rightToLeftLink(d)
       }
-      var x0 = d.source.x + d.source.dx,
-          x1 = d.target.x,
-          xi = d3.interpolateNumber(x0, x1),
-          x2 = xi(curvature),
-          x3 = xi(1 - curvature),
-          y0 = d.source.y + d.sy + d.dy / 2,
-          y1 = d.target.y + d.ty + d.dy / 2;
-      return "M" + x0 + "," + y0
-           + "C" + x2 + "," + y0
-           + " " + x3 + "," + y1
-           + " " + x1 + "," + y1;
     }
 
     function leftToRightLink(d) {
-      var x0 = d.source.x + d.source.dx + d.dy / 4 + d.dy / 2,
-          x1 = d.target.x - d.dy / 4 - d.dy / 2,
+      var arrowLength = d.dy / 2;
+      var straightSectionLength = d.dy / 4;
+      var x0 = d.source.x + d.source.dx + straightSectionLength + arrowLength,
+          x1 = d.target.x - straightSectionLength - arrowLength,
           xi = d3.interpolateNumber(x0, x1),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
           y0 = d.source.y + d.sy + d.dy / 2,
           y1 = d.target.y + d.ty + d.dy / 2;
-      return "M" + x0 + "," + y0
-           + "L" + (x0 - d.dy / 4 - d.dy / 2) + "," + y0
-           + "M" + x0 + "," + y0
+      return "M" + (x0 - straightSectionLength - arrowLength) + "," + y0
+           + "L" + (x0 - straightSectionLength) + "," + y0
+           + "L" + x0 + "," + y0
            + "C" + x2 + "," + y0
            + " " + x3 + "," + y1
            + " " + x1 + "," + y1
-           + "L" + (x1 + d.dy / 4) + "," + y1;
+           + "L" + (x1 + straightSectionLength) + "," + y1
     }
 
     function rightToLeftLink(d) {
-      var x0 = d.source.x + d.source.dx,
-          x1 = d.target.x,
+      var arrowLength = d.dy / 2;
+      var straightSectionLength = d.dy / 4;
+      var x0 = d.source.x + d.source.dx + straightSectionLength + arrowLength,
+          x1 = d.target.x - straightSectionLength - arrowLength,
           xi = d3.interpolateNumber(x0, x1),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
           y0 = d.source.y + d.sy + d.dy / 2,
           y1 = d.target.y + d.ty + d.dy / 2;
-      return "M" + x0 + "," + y0
+      return "M" + (x0 - straightSectionLength - arrowLength) + "," + y0
+           + "M" + (x0 - straightSectionLength) + "," + y0
+           + "L" + x0 + "," + y0
            + "C" + x2 + "," + y0
            + " " + x3 + "," + y1
-           + " " + x1 + "," + y1;
+           + " " + x1 + "," + y1
+           + "L" + (x1 + straightSectionLength + arrowLength) + "," + y1;
     }
-
-    // function link(d) {
-    //   var x0 = d.source.x + d.source.dx + d.dy / 2,
-    //       x1 = d.target.x - d.dy / 2,
-    //       xi = d3.interpolateNumber(x0, x1),
-    //       x2 = xi(curvature),
-    //       x3 = xi(1 - curvature),
-    //       y0 = d.source.y + d.sy + d.dy / 2,
-    //       y1 = d.target.y + d.ty + d.dy / 2;
-    //   return "M" + x0 + "," + y0
-    //        + "L" + (x0 - d.dy / 2) + "," + y0
-    //        + "M" + x0 + "," + y0
-    //        + "C" + x2 + "," + y0
-    //        + " " + x3 + "," + y1
-    //        + " " + x1 + "," + y1
-    //        + "L" + (x1 + d.dy / 2) + "," + y1;
-    // }
 
     link.curvature = function(_) {
       if (!arguments.length) return curvature;

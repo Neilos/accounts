@@ -27,9 +27,9 @@ $(document).ready(function() {
 
   var defs = svg.append("defs");
 
-  var arrowHead = defs.append("marker")
-      .attr("id", "arrowHead")
-      .attr("viewBox", "0 0 10 10")
+  var arrowHeadRight = defs.append("marker")
+      .attr("id", "arrowHeadRight")
+      .attr("viewBox", "0 0 5 10")
       .attr("refX", "0.1")
       .attr("refY", "5")
       .attr("markerUnits", "strokeWidth")
@@ -38,6 +38,18 @@ $(document).ready(function() {
       .attr("orient", "auto")
       .append("path")
         .attr("d", "M 0 0 L 5 5 L 0 10 z")
+
+  var arrowHeadLeft = defs.append("marker")
+      .attr("id", "arrowHeadLeft")
+      .attr("viewBox", "0 0 5 10")
+      .attr("refX", "-0.1")
+      .attr("refY", "5")
+      .attr("markerUnits", "strokeWidth")
+      .attr("markerWidth", "1")
+      .attr("markerHeight", "1")
+      .attr("orient", "auto")
+      .append("path")
+        .attr("d", "M 5 0 L 0 5 L 5 10 z")
 
   // load the data
   d3.json("sankey-formatted.json", function(error, graph) {
@@ -53,7 +65,16 @@ $(document).ready(function() {
       .enter().append("path")
         .attr("class", "link")
         .attr("d", path)
-        .style("marker-end", function(d) { return 'url(#arrowHead)'})
+        .style("marker-end", function(d) {
+          if (d.direction === 'left->right') {
+            return 'url(#arrowHeadRight)'
+          }
+        })
+        .style("marker-start", function(d) {
+          if (d.direction === 'right->left') {
+            return 'url(#arrowHeadLeft)'
+          }
+        })
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
         .sort(function(a, b) { return b.dy - a.dy; });
 
