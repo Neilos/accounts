@@ -11,11 +11,14 @@
 
 .link {
   fill: none;
-  stroke: #000;
-  // marker-end: url(#Triangle);
-  stroke-opacity: .2;
+  stroke: grey;
+  opacity: 0.5;
 }
 
 .link:hover {
-  stroke-opacity: .5;
+  opacity: 0.7;
+}
+
+marker {
+  fill: grey;
 }

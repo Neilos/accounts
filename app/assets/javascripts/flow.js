@@ -25,6 +25,20 @@ $(document).ready(function() {
 
   var path = sankey.link();
 
+  var defs = svg.append("defs");
+
+  var arrowHead = defs.append("marker")
+      .attr("id", "arrowHead")
+      .attr("viewBox", "0 0 10 10")
+      .attr("refX", "0.1")
+      .attr("refY", "5")
+      .attr("markerUnits", "strokeWidth")
+      .attr("markerWidth", "1")
+      .attr("markerHeight", "1")
+      .attr("orient", "auto")
+      .append("path")
+        .attr("d", "M 0 0 L 5 5 L 0 10 z")
+
   // load the data
   d3.json("sankey-formatted.json", function(error, graph) {
 
@@ -39,7 +53,7 @@ $(document).ready(function() {
       .enter().append("path")
         .attr("class", "link")
         .attr("d", path)
-        .style("marker-end", function(d) { return 'url(#Triangle)'})
+        .style("marker-end", function(d) { return 'url(#arrowHead)'})
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
         .sort(function(a, b) { return b.dy - a.dy; });
 
@@ -66,7 +80,7 @@ $(document).ready(function() {
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth())
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+        // .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
       .append("title")
         .text(function(d) { return d.name + "\n" + format(d.value); });
 
