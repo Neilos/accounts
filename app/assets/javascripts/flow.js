@@ -22,6 +22,7 @@ $(document).ready(function() {
       .nodeWidth(36)
       .nodePadding(40)
       .linkSpacing(4)
+      .arrowheadScaleFactor(0.5)
       .size([width, height]);
 
   var path = sankey.link();

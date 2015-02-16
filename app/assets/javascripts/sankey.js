@@ -3,6 +3,7 @@ d3.sankey = function() {
       nodeWidth = 24,
       nodePadding = 8,
       linkSpacing = 5,
+      arrowheadScaleFactor = 0,
       size = [1, 1],
       nodes = [],
       links = []
@@ -22,6 +23,12 @@ d3.sankey = function() {
   sankey.linkSpacing = function(_) {
     if (!arguments.length) return linkSpacing;
     linkSpacing = +_;
+    return sankey;
+  };
+
+  sankey.arrowheadScaleFactor = function(_) {
+    if (!arguments.length) return arrowheadScaleFactor;
+    arrowheadScaleFactor = +_;
     return sankey;
   };
 
@@ -69,7 +76,7 @@ d3.sankey = function() {
     }
 
     function leftToRightLink(d) {
-      var arrowLength = d.dy / 2;
+      var arrowLength = d.dy * arrowheadScaleFactor;
       var straightSectionLength = d.dy / 4;
       var x0 = d.source.x + d.source.dx + straightSectionLength + arrowLength,
           x1 = d.target.x - straightSectionLength - arrowLength,
@@ -88,7 +95,7 @@ d3.sankey = function() {
     }
 
     function rightToLeftLink(d) {
-      var arrowLength = d.dy / 2;
+      var arrowLength = d.dy * arrowheadScaleFactor;
       var straightSectionLength = d.dy / 4;
       var x0 = d.source.x + d.source.dx + straightSectionLength + arrowLength,
           x1 = d.target.x - straightSectionLength - arrowLength,
