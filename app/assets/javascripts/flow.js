@@ -78,7 +78,13 @@ $(document).ready(function() {
           }
         })
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-        .sort(function(a, b) { return b.dy - a.dy; });
+        .sort(function(a, b) { return b.dy - a.dy; })
+        .on('mouseover', function(d){
+          d3.select(this).transition().style("opacity", .9);
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).transition().style("opacity", .5);
+        });
 
   // add the link titles
     link.append("title")
@@ -118,7 +124,25 @@ $(document).ready(function() {
         .attr("x", 6 + sankey.nodeWidth())
         .attr("text-anchor", "start");
 
-  // the function for moving the nodes
+    // fade in and out links and nodes that aren't connected to this node
+    node
+      .on("mouseover", fade(.1))
+      .on("mouseout", fade(.5));
+
+
+    // Returns an event handler for fading
+    function fade(opacity) {
+      return function(g, i) {
+        svg.selectAll(".link")
+            .filter(function(d) {
+              return (d.source != g && d.target != g);
+            })
+          .transition()
+            .style("opacity", opacity);
+      };
+    }
+
+    // the function for moving the nodes
     function dragmove(d) {
       d3.select(this).attr("transform",
           "translate("
