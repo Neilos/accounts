@@ -1,5 +1,6 @@
 d3.sankey = function() {
   var sankey = {},
+      linkedNodes = {},
       nodeWidth = 24,
       nodePadding = 8,
       linkSpacing = 5,
@@ -53,6 +54,7 @@ d3.sankey = function() {
   sankey.layout = function(iterations) {
     computeNodeLinks();
     computeNodeValues();
+    computeLinkedByIndex();
     computeNodeXPositions();
     computeNodeYPositions(iterations);
     computeLinkYPositions();
@@ -120,6 +122,10 @@ d3.sankey = function() {
     return link;
   };
 
+  sankey.connected = function(nodeA, nodeB) {
+    return linkedNodes[nodeA.name + "," + nodeB.name] || linkedNodes[nodeB.name + "," + nodeA.name];
+  };
+
   // Populate the sourceLinks and targetLinks for each node.
   function computeNodeLinks() {
     nodes.forEach(function(node) {
@@ -145,6 +151,12 @@ d3.sankey = function() {
         d3.sum(node.targetLinks, value)
       );
       node.linkSpaceCount = Math.max(node.sourceLinks.length, node.targetLinks.length) - 1
+    });
+  }
+
+  function computeLinkedByIndex() {
+    links.forEach(function(d) {
+      linkedNodes[d.source.name + "," + d.target.name] = 1;
     });
   }
 

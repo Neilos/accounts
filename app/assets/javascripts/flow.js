@@ -126,19 +126,23 @@ $(document).ready(function() {
 
     // fade in and out links and nodes that aren't connected to this node
     node
-      .on("mouseover", fade(.1))
-      .on("mouseout", fade(.5));
+      .on("mouseover", fade(.1, .2))
+      .on("mouseout", fade(.5, .9));
 
 
     // Returns an event handler for fading
-    function fade(opacity) {
+    function fade(linkOpacity, nodeOpacity) {
       return function(g, i) {
         svg.selectAll(".link")
-            .filter(function(d) {
-              return (d.source != g && d.target != g);
-            })
-          .transition()
-            .style("opacity", opacity);
+          .filter(function(d) {
+            return (d.source != g && d.target != g);
+          })
+          .transition().style("opacity", linkOpacity);
+        svg.selectAll(".node")
+          .filter(function(d) {
+            return (d.name == g.name) ? false : !sankey.connected(d, g)
+          })
+          .transition().style("opacity", nodeOpacity);
       };
     }
 
