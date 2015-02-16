@@ -21,6 +21,7 @@ $(document).ready(function() {
   var sankey = d3.sankey()
       .nodeWidth(36)
       .nodePadding(40)
+      .linkSpacing(4)
       .size([width, height]);
 
   var path = sankey.link();

@@ -2,6 +2,7 @@ d3.sankey = function() {
   var sankey = {},
       nodeWidth = 24,
       nodePadding = 8,
+      linkSpacing = 5,
       size = [1, 1],
       nodes = [],
       links = []
@@ -15,6 +16,12 @@ d3.sankey = function() {
   sankey.nodePadding = function(_) {
     if (!arguments.length) return nodePadding;
     nodePadding = +_;
+    return sankey;
+  };
+
+  sankey.linkSpacing = function(_) {
+    if (!arguments.length) return linkSpacing;
+    linkSpacing = +_;
     return sankey;
   };
 
@@ -38,7 +45,7 @@ d3.sankey = function() {
 
   sankey.layout = function(iterations) {
     computeNodeLinks();
-    computeNodeHeights();
+    computeNodeValues();
     computeNodeXPositions();
     computeNodeYPositions(iterations);
     computeLinkYPositions();
@@ -126,12 +133,13 @@ d3.sankey = function() {
   }
 
   // Compute the height of each node by summing the associated links.
-  function computeNodeHeights() {
+  function computeNodeValues() {
     nodes.forEach(function(node) {
       node.value = Math.max(
         d3.sum(node.sourceLinks, value),
         d3.sum(node.targetLinks, value)
       );
+      node.linkSpaceCount = Math.max(node.sourceLinks.length, node.targetLinks.length) - 1
     });
   }
 
@@ -205,13 +213,17 @@ d3.sankey = function() {
 
     function initializeNodeYPosition() {
       var ky = d3.min(nodesByXPosition, function(nodes) {
-        return (size[1] - (nodes.length - 1) * nodePadding) / d3.sum(nodes, value);
+        var linkSpacesCount = d3.sum(nodes, function(node) {
+          return node.linkSpaceCount
+        })
+
+        return (size[1] - (nodes.length - 1) * nodePadding - linkSpacesCount * linkSpacing) / d3.sum(nodes, value);
       });
 
       nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
           node.y = i;
-          node.dy = node.value * ky;
+          node.dy = node.value * ky + linkSpacing * node.linkSpaceCount;
         });
       });
 
@@ -297,11 +309,11 @@ d3.sankey = function() {
       var sy = 0, ty = 0;
       node.sourceLinks.forEach(function(link) {
         link.sy = sy;
-        sy += link.dy;
+        sy += link.dy + linkSpacing;
       });
       node.targetLinks.forEach(function(link) {
         link.ty = ty;
-        ty += link.dy;
+        ty += link.dy + linkSpacing;
       });
     });
 
