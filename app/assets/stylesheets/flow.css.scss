@@ -1,6 +1,5 @@
 .node rect {
   cursor: move;
-  fill-opacity: .9;
   shape-rendering: crispEdges;
 }
 
@@ -12,7 +11,6 @@
 .link {
   fill: none;
   stroke: grey;
-  opacity: 0.5;
 }
 
 marker {

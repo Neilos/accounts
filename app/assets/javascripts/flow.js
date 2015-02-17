@@ -5,6 +5,12 @@ $(document).ready(function() {
       width = 700 - margin.left - margin.right,
       height = 300 - margin.top - margin.bottom;
 
+  var nodeDefaultOpacity = .9,
+      nodeFadedOpacity = .2,
+      linkDefaultOpacity = .5,
+      linkFadedOpacity = .1,
+      linkHighlightedOpacity = .9
+
   var formatNumber = d3.format(",.0f"),    // zero decimal places
       format = function(d) { return formatNumber(d) + " " + units; },
       color = d3.scale.category20();
@@ -96,12 +102,13 @@ $(document).ready(function() {
           }
         })
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+        .style("opacity", linkDefaultOpacity)
         .sort(function(a, b) { return b.dy - a.dy; })
         .on('mouseover', function(d){
-          d3.select(this).transition().style("opacity", .9);
+          d3.select(this).transition().style("opacity", linkHighlightedOpacity);
         })
         .on('mouseout', function(d) {
-          d3.select(this).transition().style("opacity", .5);
+          d3.select(this).transition().style("opacity", linkDefaultOpacity);
         });
 
   // add the link titles
@@ -126,6 +133,7 @@ $(document).ready(function() {
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth())
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("fill-opacity", nodeDefaultOpacity)
         .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
       .append("title")
         .text(function(d) { return d.name + "\n" + format(d.value); });
@@ -144,8 +152,8 @@ $(document).ready(function() {
 
     // fade in and out links and nodes that aren't connected to this node
     node
-      .on("mouseover", fade(.1, .2))
-      .on("mouseout", fade(.5, .9));
+      .on("mouseover", fade(linkFadedOpacity, nodeFadedOpacity))
+      .on("mouseout", fade(linkDefaultOpacity, nodeDefaultOpacity));
 
 
     // Returns an event handler for fading
