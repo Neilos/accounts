@@ -17,16 +17,16 @@ class ApplicationController < ActionController::Base
         {"node" => 4,"name" => "node4"}
       ],
       "links" => [
-        {"source" => 0,"target" => 2,"value" => 5},
-        {"source" => 2,"target" => 0,"value" => 1},
-        {"source" => 0,"target" => 3,"value" => 3},
-        {"source" => 1,"target" => 2,"value" => 2},
-        {"source" => 1,"target" => 3,"value" => 2},
-        {"source" => 0,"target" => 4,"value" => 2},
-        {"source" => 4,"target" => 0,"value" => 1.5},
-        {"source" => 2,"target" => 3,"value" => 2},
-        {"source" => 2,"target" => 4,"value" => 2},
-        {"source" => 3,"target" => 4,"value" => 4}
+        {"source" => 0,"target" => 2,"value" => 100 * rand},
+        {"source" => 2,"target" => 0,"value" => 100 * rand},
+        {"source" => 0,"target" => 3,"value" => 100 * rand},
+        {"source" => 1,"target" => 2,"value" => 100 * rand},
+        {"source" => 1,"target" => 3,"value" => 100 * rand},
+        {"source" => 0,"target" => 4,"value" => 100 * rand},
+        {"source" => 4,"target" => 0,"value" => 100 * rand},
+        {"source" => 2,"target" => 3,"value" => 100 * rand},
+        {"source" => 2,"target" => 4,"value" => 100 * rand},
+        {"source" => 3,"target" => 4,"value" => 100 * rand}
       ]
     }
     respond_to do |format|

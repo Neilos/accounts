@@ -59,9 +59,7 @@ $(document).ready(function() {
       .append("path")
         .attr("d", "M 5 0 L 0 5 L 5 10 z")
 
-  // load the data
-  d3.json("sankey-formatted.json", function(error, graph) {
-
+  function update(graph) {
     // resolve bidirectional relationships into node links with a direction
     relationships = {};
     graph.links.forEach(function(link){
@@ -78,19 +76,28 @@ $(document).ready(function() {
         link.direction = 1;
       }
       relationships[sourceTarget] = link.direction;
+      link.id = link.source + "-" + link.target + "-" + link.direction
     });
 
     sankey
-        .nodes(graph.nodes)
-        .links(graph.links)
-        .layout(32);
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .layout(32);
 
-    // add in the links
-    var link = svg.append("g").selectAll(".link")
-        .data(graph.links)
-      .enter().append("path")
-        .attr("class", "link")
-        .attr("d", path)
+    // DATA JOIN
+    var link = svg.selectAll("path.link")
+        .data(graph.links, function(d) { return d.id })
+
+    // UPDATE
+    link.attr("class", "link update")
+
+    // ENTER
+    link.enter().append("path")
+        .attr("class", "link enter")
+        .append("title")
+
+    // ENTER + UPDATE
+    link.sort(function(a, b) { return b.dy - a.dy; })
         .style("marker-end", function(d) {
           if (d.direction > 0) {
             return 'url(#arrowHeadRight)'
@@ -101,47 +108,55 @@ $(document).ready(function() {
             return 'url(#arrowHeadLeft)'
           }
         })
-        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
         .style("opacity", linkDefaultOpacity)
-        .sort(function(a, b) { return b.dy - a.dy; })
-        .on('mouseover', function(d){
-          d3.select(this).transition().style("opacity", linkHighlightedOpacity);
-        })
-        .on('mouseout', function(d) {
-          d3.select(this).transition().style("opacity", linkDefaultOpacity);
+      .transition()
+        .attr("d", path)
+        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+
+    // set the titles
+    link.select("title")
+        .text(function(d) {
+          var arrow = (d.direction > 0) ? " → " : " ← "
+          return d.source.name + arrow +
+                 d.target.name + "\n" + format(d.value);
         });
 
-  // add the link titles
-    link.append("title")
-      .text(function(d) {
-        var arrow = (d.direction > 0) ? " → " : " ← "
-        return d.source.name + arrow +
-               d.target.name + "\n" + format(d.value);
+    // highlight links on hover
+    link
+      .on('mouseover', function(d){
+        d3.select(this).transition().style("opacity", linkHighlightedOpacity);
+      })
+      .on('mouseout', function(d) {
+        d3.select(this).transition().style("opacity", linkDefaultOpacity);
       });
 
-  // add in the nodes
-    var node = svg.append("g").selectAll(".node")
-        .data(graph.nodes)
-      .enter().append("g")
-        .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-      .call(d3.behavior.drag()
-        .origin(function(d) { return d; })
-        .on("dragstart", function() { this.parentNode.appendChild(this); })
-        .on("drag", dragmove));
+    // EXIT
+    link.exit().remove();
 
-  // add the rectangles for the nodes
-    node.append("rect")
-        .attr("height", function(d) { return d.dy; })
-        .attr("width", sankey.nodeWidth())
-        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("fill-opacity", nodeDefaultOpacity)
-        .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
-      .append("title")
+
+    // DATA JOIN
+    var node = svg.selectAll(".node")
+        .data(graph.nodes)
+
+    // UPDATE
+    node.attr("class", "node update")
+      .transition()
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+
+    // ENTER
+    var nodeEnter = node.enter().append("g")
+      .attr("class", "node enter")
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+    nodeEnter.append("title")
+    nodeEnter.append("text")
+    nodeEnter.append("rect")
+
+    // ENTER + UPDATE
+    node.select("title")
         .text(function(d) { return d.name + "\n" + format(d.value); });
 
-  // add in the title for the nodes
-    node.append("text")
+    // add in the text for the nodes
+    node.select("text")
         .attr("x", -6)
         .attr("y", function(d) { return d.dy / 2; })
         .attr("dy", ".35em")
@@ -152,10 +167,28 @@ $(document).ready(function() {
         .attr("x", 6 + sankey.nodeWidth())
         .attr("text-anchor", "start");
 
+    // add the rectangles for the nodes
+    node.select("rect")
+        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("fill-opacity", nodeDefaultOpacity)
+        .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
+      .transition()
+        .attr("height", function(d) { return d.dy; })
+        .attr("width", sankey.nodeWidth())
+
+    // allow nodes to be dragged to new positions
+    node.call(d3.behavior.drag()
+        .origin(function(d) { return d; })
+        .on("dragstart", function() { this.parentNode.appendChild(this); })
+        .on("drag", dragmove));
+
     // fade in and out links and nodes that aren't connected to this node
     node
       .on("mouseover", fade(linkFadedOpacity, nodeFadedOpacity))
       .on("mouseout", fade(linkDefaultOpacity, nodeDefaultOpacity));
+
+    // EXIT
+    node.exit().remove();
 
 
     // Returns an event handler for fading
@@ -186,5 +219,18 @@ $(document).ready(function() {
       sankey.relayout();
       link.attr("d", path);
     }
+
+  }
+
+  d3.json("sankey-formatted.json", function(error, graph) {
+    update(graph)
   });
+
+  // load the data
+  setInterval(function() {
+    d3.json("sankey-formatted.json", function(error, graph) {
+      update(graph)
+    });
+  }, 2000);
+
 });
