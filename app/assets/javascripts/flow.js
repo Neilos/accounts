@@ -1,5 +1,4 @@
 $(document).ready(function() {
-  var units = "Widgets";
 
   var margin = {top: 10, right: 10, bottom: 10, left: 10},
       width = 700 - margin.left - margin.right,
@@ -12,6 +11,7 @@ $(document).ready(function() {
       linkHighlightedOpacity = .9
 
   var formatNumber = d3.format(",.0f"),    // zero decimal places
+      units = "Widgets",
       format = function(d) { return formatNumber(d) + " " + units; },
       color = d3.scale.category20();
 
@@ -113,9 +113,11 @@ $(document).ready(function() {
 
   // add the link titles
     link.append("title")
-          .text(function(d) {
-          return d.source.name + " → " +
-                  d.target.name + "\n" + format(d.value); });
+      .text(function(d) {
+        var arrow = (d.direction > 0) ? " → " : " ← "
+        return d.source.name + arrow +
+               d.target.name + "\n" + format(d.value);
+      });
 
   // add in the nodes
     var node = svg.append("g").selectAll(".node")
