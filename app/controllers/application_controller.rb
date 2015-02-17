@@ -17,15 +17,16 @@ class ApplicationController < ActionController::Base
         {"node" => 4,"name" => "node4"}
       ],
       "links" => [
-        {"source" => 0,"target" => 2,"value" => 5, "direction" => "right->left"},
-        {"source" => 0,"target" => 3,"value" => 3, "direction" => "left->right"},
-        {"source" => 1,"target" => 2,"value" => 2, "direction" => "left->right"},
-        {"source" => 1,"target" => 3,"value" => 2, "direction" => "left->right"},
-        {"source" => 0,"target" => 4,"value" => 2, "direction" => "left->right"},
-        {"source" => 0,"target" => 4,"value" => 2, "direction" => "right->left"},
-        {"source" => 2,"target" => 3,"value" => 2, "direction" => "left->right"},
-        {"source" => 2,"target" => 4,"value" => 2, "direction" => "left->right"},
-        {"source" => 3,"target" => 4,"value" => 4, "direction" => "left->right"}
+        {"source" => 0,"target" => 2,"value" => 5},
+        {"source" => 2,"target" => 0,"value" => 1},
+        {"source" => 0,"target" => 3,"value" => 3},
+        {"source" => 1,"target" => 2,"value" => 2},
+        {"source" => 1,"target" => 3,"value" => 2},
+        {"source" => 0,"target" => 4,"value" => 2},
+        {"source" => 4,"target" => 0,"value" => 1.5},
+        {"source" => 2,"target" => 3,"value" => 2},
+        {"source" => 2,"target" => 4,"value" => 2},
+        {"source" => 3,"target" => 4,"value" => 4}
       ]
     }
     respond_to do |format|

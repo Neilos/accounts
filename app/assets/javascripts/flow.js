@@ -56,6 +56,24 @@ $(document).ready(function() {
   // load the data
   d3.json("sankey-formatted.json", function(error, graph) {
 
+    // resolve bidirectional relationships into node links with a direction
+    relationships = {};
+    graph.links.forEach(function(link){
+      var sourceTarget = link["source"] + "-" + link["target"];
+      var targetSource = link["target"] + "-" + link["source"];
+      if (relationships[sourceTarget] !== undefined) {
+        link.direction = relationships[sourceTarget];
+      } else if (relationships[targetSource] !== undefined) {
+        link.direction = -relationships[targetSource];
+        var tempSource = link.source;
+        link.source = link.target;
+        link.target = tempSource;
+      } else {
+        link.direction = 1;
+      }
+      relationships[sourceTarget] = link.direction;
+    });
+
     sankey
         .nodes(graph.nodes)
         .links(graph.links)
@@ -68,12 +86,12 @@ $(document).ready(function() {
         .attr("class", "link")
         .attr("d", path)
         .style("marker-end", function(d) {
-          if (d.direction === 'left->right') {
+          if (d.direction > 0) {
             return 'url(#arrowHeadRight)'
           }
         })
         .style("marker-start", function(d) {
-          if (d.direction === 'right->left') {
+          if (d.direction < 0) {
             return 'url(#arrowHeadLeft)'
           }
         })

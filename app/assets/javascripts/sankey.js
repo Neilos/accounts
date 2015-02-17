@@ -70,7 +70,7 @@ d3.sankey = function() {
     var curvature = .7;
 
     function link(d) {
-      if (d.direction === 'left->right') {
+      if (d.direction > 0) {
         return leftToRightLink(d)
       } else {
         return rightToLeftLink(d)
