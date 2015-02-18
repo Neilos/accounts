@@ -162,7 +162,8 @@ $(document).ready(function() {
         .text(function(d) { return d.name + "\n" + format(d.value); });
 
     // add in the text for the nodes
-    node.select("text")
+    node.filter(function(d) { return d.value !== 0; })
+      .select("text")
         .attr("x", -6)
         .attr("y", function(d) { return d.dy / 2; })
         .attr("dy", ".35em")
