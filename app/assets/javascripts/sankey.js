@@ -150,7 +150,7 @@ d3.sankey = function() {
         d3.sum(node.sourceLinks, value),
         d3.sum(node.targetLinks, value)
       );
-      node.linkSpaceCount = Math.max(node.sourceLinks.length, node.targetLinks.length) - 1
+      node.linkSpaceCount = Math.max(Math.max(node.sourceLinks.length, node.targetLinks.length) - 1, 0)
     });
   }
 
