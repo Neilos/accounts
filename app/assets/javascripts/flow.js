@@ -60,6 +60,12 @@ $(document).ready(function() {
         .attr("d", "M 5 0 L 0 5 L 5 10 z")
 
   function update(graph) {
+
+    // filter out links that go nowhere
+    graph.links = graph.links.filter(function(link) {
+      return link.source !== link.target;
+    });
+
     // resolve bidirectional relationships into node links with a direction
     relationships = {};
     graph.links.forEach(function(link){
