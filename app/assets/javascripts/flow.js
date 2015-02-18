@@ -82,7 +82,6 @@ $(document).ready(function() {
         link.direction = 1;
       }
       relationships[sourceTarget] = link.direction;
-      link.id = link.source + "-" + link.target + "-" + link.direction
     });
 
     sankey
@@ -142,7 +141,7 @@ $(document).ready(function() {
 
     // DATA JOIN
     var node = svg.selectAll(".node")
-        .data(graph.nodes)
+        .data(graph.nodes, function(d) { return d.id })
 
     // UPDATE
     node.attr("class", "node update")
