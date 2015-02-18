@@ -143,7 +143,7 @@ d3.sankey = function() {
     });
   }
 
-  // Compute the height of each node by summing the associated links.
+  // Compute the value of each node by summing the associated links.
   function computeNodeValues() {
     nodes.forEach(function(node) {
       node.value = Math.max(
@@ -161,9 +161,9 @@ d3.sankey = function() {
   }
 
   // Iteratively assign the x-position for each node.
-  // Nodes are assigned the maximum height of incoming neighbors plus one;
-  // nodes with no incoming links are assigned height zero, while
-  // nodes with no outgoing links are assigned the maximum height.
+  // Nodes are assigned the maximum value of incoming neighbors plus one;
+  // nodes with no incoming links are assigned value zero, while
+  // nodes with no outgoing links are assigned the maximum value.
   function computeNodeXPositions() {
     var remainingNodes = nodes,
         nextNodes,
@@ -250,7 +250,7 @@ d3.sankey = function() {
     }
 
     function relaxLeftToRight(alpha) {
-      nodesByXPosition.forEach(function(nodes, height) {
+      nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node) {
           if (node.targetLinks.length) {
             var y = d3.sum(node.targetLinks, weightedSource) / d3.sum(node.targetLinks, value);
