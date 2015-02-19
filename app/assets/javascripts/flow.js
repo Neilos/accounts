@@ -35,10 +35,10 @@ $(document).ready(function() {
 
   var defs = svg.append("defs");
 
-  var arrowHeadRight = defs.append("marker")
-      .attr("id", "arrowHeadRight")
+  var arrowHead = defs.append("marker")
+      .attr("id", "arrowHead")
       .attr("viewBox", "0 0 5 10")
-      .attr("refX", "0.1")
+      .attr("refX", ".15")
       .attr("refY", "5")
       .attr("markerUnits", "strokeWidth")
       .attr("markerWidth", "1")
@@ -47,41 +47,11 @@ $(document).ready(function() {
       .append("path")
         .attr("d", "M 0 0 L 5 5 L 0 10 z")
 
-  var arrowHeadLeft = defs.append("marker")
-      .attr("id", "arrowHeadLeft")
-      .attr("viewBox", "0 0 5 10")
-      .attr("refX", "-0.1")
-      .attr("refY", "5")
-      .attr("markerUnits", "strokeWidth")
-      .attr("markerWidth", "1")
-      .attr("markerHeight", "1")
-      .attr("orient", "auto")
-      .append("path")
-        .attr("d", "M 5 0 L 0 5 L 5 10 z")
-
   function update(graph) {
 
     // filter out links that go nowhere
     graph.links = graph.links.filter(function(link) {
       return link.source !== link.target;
-    });
-
-    // resolve bidirectional relationships into node links with a direction
-    relationships = {};
-    graph.links.forEach(function(link){
-      var sourceTarget = link["source"] + "-" + link["target"];
-      var targetSource = link["target"] + "-" + link["source"];
-      if (relationships[sourceTarget] !== undefined) {
-        link.direction = relationships[sourceTarget];
-      } else if (relationships[targetSource] !== undefined) {
-        link.direction = -relationships[targetSource];
-        var tempSource = link.source;
-        link.source = link.target;
-        link.target = tempSource;
-      } else {
-        link.direction = 1;
-      }
-      relationships[sourceTarget] = link.direction;
     });
 
     sankey
@@ -103,15 +73,14 @@ $(document).ready(function() {
 
     // ENTER + UPDATE
     link.sort(function(a, b) { return b.dy - a.dy; })
-        .style("marker-end", function(d) {
-          if (d.direction > 0) {
-            return 'url(#arrowHeadRight)'
-          }
+        .classed("leftToRight",function(d) {
+          return d.direction > 0;
         })
-        .style("marker-start", function(d) {
-          if (d.direction < 0) {
-            return 'url(#arrowHeadLeft)'
-          }
+        .classed("rightToLeft",function(d) {
+          return d.direction < 0;
+        })
+        .style("marker-end", function(d) {
+          return 'url(#arrowHead)'
         })
         .style("opacity", linkDefaultOpacity)
       .transition()
@@ -121,9 +90,11 @@ $(document).ready(function() {
     // set the titles
     link.select("title")
         .text(function(d) {
-          var arrow = (d.direction > 0) ? " → " : " ← "
-          return d.source.name + arrow +
-                 d.target.name + "\n" + format(d.value);
+          if (d.direction > 0) {
+            return d.source.name + " → " + d.target.name + "\n" + format(d.value);
+          } else {
+            return d.target.name + " ← " + d.source.name + "\n" + format(d.value);
+          }
         });
 
     // highlight links on hover
