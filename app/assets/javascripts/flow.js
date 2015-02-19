@@ -232,11 +232,10 @@ $(document).ready(function() {
     update(graph)
   });
 
-  // load the data
-  setInterval(function() {
-    d3.json("sankey-formatted.json", function(error, graph) {
-      update(graph)
-    });
-  }, 2000);
+  // setInterval(function() {
+  //   d3.json("sankey-formatted.json", function(error, graph) {
+  //     update(graph)
+  //   });
+  // }, 2000);
 
 });

@@ -21,10 +21,10 @@ class ApplicationController < ActionController::Base
         {"source"=>0, "target"=>4, "value"=>77, "id"=>2},
         {"source"=>2, "target"=>1, "value"=>94, "id"=>3},
         {"source"=>0, "target"=>1, "value"=>46, "id"=>4},
-        {"source"=>0, "target"=>4, "value"=>1, "id"=>5},
+        {"source"=>0, "target"=>4, "value"=>10, "id"=>5},
         {"source"=>2, "target"=>0, "value"=>29, "id"=>6},
-        # {"source"=>4, "target"=>2, "value"=>18, "id"=>7},
-        {"source"=>0, "target"=>1, "value"=>71, "id"=>8},
+        {"source"=>4, "target"=>2, "value"=>18, "id"=>7},
+        {"source"=>1, "target"=>0, "value"=>71, "id"=>8},
         {"source"=>2, "target"=>4, "value"=>30, "id"=>9},
         {"source"=>2, "target"=>0, "value"=>63, "id"=>10},
       ]
