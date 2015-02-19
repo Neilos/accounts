@@ -347,27 +347,37 @@ d3.sankey = function() {
 
   function computeLinkYPositions() {
     nodes.forEach(function(node) {
-      node.sourceLinks.sort(ascendingTargetYPosition);
-      node.targetLinks.sort(ascendingSourceYPosition);
-    });
-    nodes.forEach(function(node) {
-      var sy = 0, ty = 0;
-      node.sourceLinks.forEach(function(link) {
-        link.sy = sy;
-        sy += link.dy + linkSpacing;
-      });
-      node.targetLinks.forEach(function(link) {
-        link.ty = ty;
-        ty += link.dy + linkSpacing;
-      });
+      node.rightLinks.sort(ascendingRightNodeYPosition);
+      node.leftLinks.sort(ascendingLeftNodeYPosition);
     });
 
-    function ascendingSourceYPosition(a, b) {
-      return a.source.y - b.source.y;
+    nodes.forEach(function(node) {
+      var ry = 0, ly = 0;
+
+      node.rightLinks.forEach(function(link) {
+        if (link.direction > 0) { link.sy = ry; }
+        else { link.ty = ry; }
+        ry += link.dy + linkSpacing;
+      });
+
+      node.leftLinks.forEach(function(link) {
+        if (link.direction < 0) { link.sy = ly; }
+        else { link.ty = ly; }
+        ly += link.dy + linkSpacing;
+      });
+
+    });
+
+    function ascendingLeftNodeYPosition(a, b) {
+      var aLeftNode = (a.direction > 0) ? a.source : a.target
+      var bLeftNode = (b.direction > 0) ? b.source : b.target
+      return aLeftNode.y - bLeftNode.y;
     }
 
-    function ascendingTargetYPosition(a, b) {
-      return a.target.y - b.target.y;
+    function ascendingRightNodeYPosition(a, b) {
+      var aRightNode = (a.direction > 0) ? a.target : a.source
+      var bRightNode = (b.direction > 0) ? b.target : b.source
+      return aRightNode.y - bRightNode.y;
     }
   }
 
