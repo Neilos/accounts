@@ -183,18 +183,36 @@ d3.sankey = function() {
         node.x = x;
         node.dx = nodeWidth;
         node.sourceLinks.forEach(function(link) {
-          if (nextNodes.indexOf(link.target) < 0
-            && link.target.x == node.x) {
+          if (nextNodes.indexOf(link.target) < 0 && link.target.x == node.x) {
             nextNodes.push(link.target);
           }
         });
       });
-      remainingNodes = nextNodes;
+      if (nextNodes.length) {
+        remainingNodes = nextNodes;
+      } else {
+        remainingNodes = sourceAndTargetNodesWithSameX();
+      }
       ++x;
     }
 
-    moveSinksRight(x);
-    scaleNodeXPositions((size[0] - nodeWidth) / (x - 1));
+    var minX = d3.min(nodes, function(d) { return d.x; });
+    var maxX = d3.max(nodes, function(d) { return d.x; }) - minX;
+
+    adjustLeft(minX);
+    scaleNodeXPositions((size[0] - nodeWidth) / maxX);
+  }
+
+  function sourceAndTargetNodesWithSameX() {
+    var nodeArray = []
+    links.filter(function(link) {
+      return link.target.x == link.source.x;
+    }).forEach(function(link) {
+      if (nodeArray.indexOf(link.target) < 0) {
+        nodeArray.push(link.target)
+      }
+    });
+    return nodeArray;
   }
 
   function computeLeftAndRightLinks() {
@@ -225,11 +243,9 @@ d3.sankey = function() {
     });
   }
 
-  function moveSinksRight(x) {
+  function adjustLeft(minX) {
     nodes.forEach(function(node) {
-      if (!node.sourceLinks.length) {
-        node.x = x - 1;
-      }
+      node.x -= minX
     });
   }
 

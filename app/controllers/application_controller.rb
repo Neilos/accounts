@@ -17,18 +17,20 @@ class ApplicationController < ActionController::Base
         {"node" => 4,"name" => "node4", "id"=>5},
       ],
       "links" => [
-        {"source"=>3, "target"=>2, "value"=>17, "id"=>1},
-        {"source"=>0, "target"=>4, "value"=>77, "id"=>2},
-        {"source"=>2, "target"=>1, "value"=>94, "id"=>3},
-        {"source"=>0, "target"=>1, "value"=>46, "id"=>4},
-        {"source"=>0, "target"=>4, "value"=>10, "id"=>5},
-        {"source"=>2, "target"=>0, "value"=>29, "id"=>6},
-        {"source"=>4, "target"=>2, "value"=>18, "id"=>7},
-        {"source"=>1, "target"=>0, "value"=>71, "id"=>8},
-        {"source"=>2, "target"=>4, "value"=>30, "id"=>9},
-        {"source"=>2, "target"=>0, "value"=>63, "id"=>10},
+
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>1},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>2},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>3},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>4},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>5},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>6},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>7},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>8},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>9},
+        {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>10},
       ]
     }
+    puts data["links"]
     respond_to do |format|
       format.json { render :json => data.to_json }
     end
