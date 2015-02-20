@@ -7,7 +7,9 @@ d3.sankey = function() {
       arrowheadScaleFactor = 0,
       size = [1, 1],
       nodes = [],
-      links = []
+      links = [],
+      xScaleFactor = 1,
+      yScaleFactor = 1
 
   sankey.nodeWidth = function(_) {
     if (!arguments.length) return nodeWidth;
@@ -200,7 +202,8 @@ d3.sankey = function() {
     var maxX = d3.max(nodes, function(d) { return d.x; }) - minX;
 
     adjustLeft(minX);
-    scaleNodeXPositions((size[0] - nodeWidth) / maxX);
+    xScaleFactor = (size[0] - nodeWidth) / maxX
+    scaleNodeXPositions(xScaleFactor);
   }
 
   function sourceAndTargetNodesWithSameX() {
@@ -280,6 +283,8 @@ d3.sankey = function() {
 
         return (size[1] - (nodes.length - 1) * nodePadding - linkSpacesCount * linkSpacing) / d3.sum(nodes, value);
       });
+
+      yScaleFactor = ky;
 
       nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
