@@ -66,6 +66,8 @@ d3.sankey = function() {
   };
 
   sankey.relayout = function() {
+    computeLeftAndRightLinks();
+    computeNodeValues();
     computeLinkYPositions();
     return sankey;
   };
@@ -160,6 +162,7 @@ d3.sankey = function() {
         d3.sum(node.leftLinks, value),
         d3.sum(node.rightLinks, value)
       );
+      node.dy = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
       node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0)
     });
   }

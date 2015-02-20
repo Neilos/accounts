@@ -187,13 +187,15 @@ $(document).ready(function() {
     // the function for moving the nodes
     function dragmove(d) {
       d3.select(this).attr("transform",
-          "translate("
-          + ( d.x = d.x )
+        "translate(" + (
+              d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))
+          )
           + "," + (
               d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
-          )
-          + ")");
+          ) + ")"
+        );
       sankey.relayout();
+      svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
       link.attr("d", path);
     }
 
