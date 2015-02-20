@@ -26,7 +26,7 @@ $(document).ready(function() {
   // Set the sankey diagram properties
   var sankey = d3.sankey()
       .nodeWidth(36)
-      .nodePadding(40)
+      .nodePadding(50)
       .linkSpacing(4)
       .arrowheadScaleFactor(0.5)
       .size([width, height]);
