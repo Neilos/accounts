@@ -261,6 +261,12 @@ d3.sankey = function() {
     });
   }
 
+  function adjustTop(minY) {
+    nodes.forEach(function(node) {
+      node.y -= minY
+    });
+  }
+
   function computeNodeYPositions(iterations) {
     var nodesByXPosition = d3.nest()
         .key(function(d) { return d.x; })
@@ -278,13 +284,31 @@ d3.sankey = function() {
       resolveCollisions();
     }
 
+    var minY = d3.min(nodes, function(d) { return d.y; });
+    adjustTop(minY);
+
+
     function initializeNodeYPosition() {
       var ky = d3.min(nodesByXPosition, function(nodes) {
         var linkSpacesCount = d3.sum(nodes, function(node) {
           return node.linkSpaceCount
         })
 
-        return (size[1] - (nodes.length - 1) * nodePadding - linkSpacesCount * linkSpacing) / d3.sum(nodes, value);
+        var nodeValueSum = d3.sum(nodes, value);
+        var discretionaryY = (size[1] - (nodes.length - 1) * nodePadding - linkSpacesCount * linkSpacing)
+
+        return  discretionaryY / nodeValueSum;
+      });
+
+      // Fat links are those with lengths less than twice their heights
+      // Fat links don't bend well
+      // Test that ky is not so big that it causes "fat" links; adjust ky accordingly
+      links.filter(function(link) {
+        var linkLength = Math.abs(link.source.x - link.target.x)
+        var linkHeight = link.value * ky;
+        if (linkLength / linkHeight < 2) {
+          ky = 0.5 * linkLength / link.value
+        }
       });
 
       yScaleFactor = ky;
