@@ -177,10 +177,6 @@ d3.sankey = function() {
     });
   }
 
-  // Iteratively assign the x-position for each node.
-  // Nodes are assigned the maximum value of incoming neighbors plus one;
-  // nodes with no incoming links are assigned value zero, while
-  // nodes with no outgoing links are assigned the maximum value.
   function computeNodeXPositions() {
     var remainingNodes = nodes,
         nextNodes,
