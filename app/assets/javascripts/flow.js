@@ -13,9 +13,15 @@ $(document).ready(function() {
       negativeFlowColor = "#FF0000",
       linkColor = "#808080";
 
-  var formatNumber = d3.format(",.0f"),    // zero decimal places
-      units = "Widgets",
-      format = function(d) { return formatNumber(d) + " " + units; },
+  var units = "Widgets",
+      formatNumber = function(d) {
+        var numberFormat = d3.format(",.0f"); // zero decimal places
+        return numberFormat(d) + " " + units;
+      },
+      formatFlow = function(d) {
+        var flowFormat = d3.format("+,.0f"); // zero decimal places with sign
+        return flowFormat(d) + " " + units;
+      },
       color = d3.scale.category20();
 
   // append the svg canvas to the page
@@ -123,9 +129,9 @@ $(document).ready(function() {
     link.select("title")
         .text(function(d) {
           if (d.direction > 0) {
-            return d.source.name + " → " + d.target.name + "\n" + format(d.value);
+            return d.source.name + " → " + d.target.name + "\n" + formatNumber(d.value);
           } else {
-            return d.target.name + " ← " + d.source.name + "\n" + format(d.value);
+            return d.target.name + " ← " + d.source.name + "\n" + formatNumber(d.value);
           }
         });
 
@@ -167,7 +173,9 @@ $(document).ready(function() {
 
     // ENTER + UPDATE
     node.select("title")
-        .text(function(d) { return d.name + "\n" + format(d.value); });
+        .text(function(d) {
+          return d.name + "\nNet flow: " + formatFlow(d.netFlow);
+        });
 
     // add in the text for the nodes
     node.filter(function(d) { return d.value !== 0; })
