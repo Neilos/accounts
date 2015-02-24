@@ -5,10 +5,13 @@ $(document).ready(function() {
       height = 300 - margin.top - margin.bottom;
 
   var nodeDefaultOpacity = .9,
-      nodeFadedOpacity = .2,
+      nodeFadedOpacity = .1,
       linkDefaultOpacity = .5,
-      linkFadedOpacity = .1,
-      linkHighlightedOpacity = .9
+      linkFadedOpacity = .05,
+      linkHighlightedOpacity = .9,
+      positiveFlowColor = "#0066FF",
+      negativeFlowColor = "#FF0000",
+      linkColor = "#808080";
 
   var formatNumber = d3.format(",.0f"),    // zero decimal places
       units = "Widgets",
@@ -44,8 +47,35 @@ $(document).ready(function() {
       .attr("markerWidth", "1")
       .attr("markerHeight", "1")
       .attr("orient", "auto")
+      .style("fill", linkColor)
       .append("path")
         .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
+
+    var arrowHead = defs.append("marker")
+      .attr("id", "arrowHeadNegativeFlow")
+      .attr("viewBox", "0 0 6 10")
+      .attr("refX", "1")
+      .attr("refY", "5")
+      .attr("markerUnits", "strokeWidth")
+      .attr("markerWidth", "1")
+      .attr("markerHeight", "1")
+      .attr("orient", "auto")
+      .style("fill", negativeFlowColor)
+      .append("path")
+        .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
+
+    var arrowHead = defs.append("marker")
+        .attr("id", "arrowHeadPositiveFlow")
+        .attr("viewBox", "0 0 6 10")
+        .attr("refX", "1")
+        .attr("refY", "5")
+        .attr("markerUnits", "strokeWidth")
+        .attr("markerWidth", "1")
+        .attr("markerHeight", "1")
+        .attr("orient", "auto")
+        .style("fill", positiveFlowColor)
+        .append("path")
+          .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
 
   function update(graph) {
 
@@ -82,6 +112,8 @@ $(document).ready(function() {
         .style("marker-end", function(d) {
           return 'url(#arrowHead)'
         })
+        .style("fill", "none")
+        .style("stroke", linkColor)
         .style("opacity", linkDefaultOpacity)
       .transition()
         .attr("d", path)
@@ -100,10 +132,16 @@ $(document).ready(function() {
     // highlight links on hover
     link
       .on('mouseover', function(d){
-        d3.select(this).transition().style("opacity", linkHighlightedOpacity);
+        d3.select(this)
+          .style("stroke", linkColor)
+          .transition()
+            .style("opacity", linkHighlightedOpacity)
       })
       .on('mouseout', function(d) {
-        d3.select(this).transition().style("opacity", linkDefaultOpacity);
+        d3.select(this)
+          .style("stroke", linkColor)
+          .transition()
+            .style("opacity", linkDefaultOpacity)
       });
 
     // EXIT
@@ -151,7 +189,7 @@ $(document).ready(function() {
         .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
       .transition()
         .attr("height", function(d) { return d.dy; })
-        .attr("width", sankey.nodeWidth())
+        .attr("width", sankey.nodeWidth());
 
     // allow nodes to be dragged to new positions
     node.call(d3.behavior.drag()
@@ -161,28 +199,56 @@ $(document).ready(function() {
 
     // fade in and out links and nodes that aren't connected to this node
     node
-      .on("mouseover", fade(linkFadedOpacity, nodeFadedOpacity))
-      .on("mouseout", fade(linkDefaultOpacity, nodeDefaultOpacity));
-
-    // EXIT
-    node.exit().remove();
-
-
-    // Returns an event handler for fading
-    function fade(linkOpacity, nodeOpacity) {
-      return function(g, i) {
+      .on("mouseover", function(g, i) {
         svg.selectAll(".link")
-          .filter(function(d) {
-            return (d.source != g && d.target != g);
-          })
-          .transition().style("opacity", linkOpacity);
+          .filter(function(d) { return d.source !== g && d.target !== g; })
+            .style("marker-end", function(d) {
+              return 'url(#arrowHead)'
+            })
+          .transition()
+            .style("opacity", linkFadedOpacity);
+
+        svg.selectAll(".link")
+          .filter(function(d) { return d.source == g; })
+            .style("marker-end", function(d) {
+              return 'url(#arrowHeadNegativeFlow)'
+            })
+            .style("stroke", negativeFlowColor)
+            .style("opacity", linkDefaultOpacity);
+
+        svg.selectAll(".link")
+          .filter(function(d) { return d.target == g; })
+            .style("marker-end", function(d) {
+              return 'url(#arrowHeadPositiveFlow)'
+            })
+            .style("stroke", positiveFlowColor)
+            .style("opacity", linkDefaultOpacity);
+
         svg.selectAll(".node")
           .filter(function(d) {
             return (d.name == g.name) ? false : !sankey.connected(d, g)
           })
-          .transition().style("opacity", nodeOpacity);
-      };
-    }
+          .transition()
+            .style("opacity", nodeFadedOpacity);
+      })
+      .on("mouseout", function(g, i) {
+        svg.selectAll(".link")
+          .style("stroke", linkColor)
+          .style("marker-end", function(d) {
+            return 'url(#arrowHead)'
+          })
+          .transition()
+            .style("opacity", linkDefaultOpacity);
+
+        svg.selectAll(".node")
+          .filter(function(d) {
+            return (d.name == g.name) ? false : !sankey.connected(d, g)
+          })
+          .transition().style("opacity", nodeDefaultOpacity);
+      });
+
+    // EXIT
+    node.exit().remove();
 
     // the function for moving the nodes
     function dragmove(d) {
