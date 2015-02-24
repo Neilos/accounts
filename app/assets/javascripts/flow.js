@@ -35,9 +35,9 @@ $(document).ready(function() {
   // Set the sankey diagram properties
   var sankey = d3.sankey()
       .nodeWidth(36)
-      .nodePadding(50)
+      .nodeSpacing(50)
       .linkSpacing(4)
-      .arrowheadScaleFactor(0.5)
+      .arrowheadScaleFactor(0.5) // Specifies that 0.5 of the link's stroke width should be allowed for the marker at the end of the link.
       .size([width, height]);
 
   var path = sankey.link();

@@ -1,9 +1,9 @@
 d3.sankey = function() {
   var sankey = {},
       nodeWidth = 24,
-      nodePadding = 8,
+      nodeSpacing = 8,
       linkSpacing = 5,
-      arrowheadScaleFactor = 0,
+      arrowheadScaleFactor = 0, // Specifies the proportion of a link's stroke width to be allowed for the marker at the end of the link.
       size = [1, 1],
       nodes = [],
       links = [],
@@ -16,9 +16,9 @@ d3.sankey = function() {
     return sankey;
   };
 
-  sankey.nodePadding = function(_) {
-    if (!arguments.length) return nodePadding;
-    nodePadding = +_;
+  sankey.nodeSpacing = function(_) {
+    if (!arguments.length) return nodeSpacing;
+    nodeSpacing = +_;
     return sankey;
   };
 
@@ -313,7 +313,7 @@ d3.sankey = function() {
         })
 
         var nodeValueSum = d3.sum(nodes, value);
-        var discretionaryY = (size[1] - (nodes.length - 1) * nodePadding - linkSpacesCount * linkSpacing)
+        var discretionaryY = (size[1] - (nodes.length - 1) * nodeSpacing - linkSpacesCount * linkSpacing)
 
         return  discretionaryY / nodeValueSum;
       });
@@ -387,18 +387,18 @@ d3.sankey = function() {
           node = nodes[i];
           dy = y0 - node.y;
           if (dy > 0) node.y += dy;
-          y0 = node.y + node.dy + nodePadding;
+          y0 = node.y + node.dy + nodeSpacing;
         }
 
         // If the bottommost node goes outside the bounds, push it back up.
-        dy = y0 - nodePadding - size[1];
+        dy = y0 - nodeSpacing - size[1];
         if (dy > 0) {
           y0 = node.y -= dy;
 
           // Push any overlapping nodes back up.
           for (i = n - 2; i >= 0; --i) {
             node = nodes[i];
-            dy = node.y + node.dy + nodePadding - y0;
+            dy = node.y + node.dy + nodeSpacing - y0;
             if (dy > 0) node.y -= dy;
             y0 = node.y;
           }
