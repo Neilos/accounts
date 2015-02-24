@@ -223,13 +223,14 @@ d3.sankey = function() {
   }
 
   function computeLeftAndRightLinks() {
+    var source, target;
     nodes.forEach(function(node) {
       node.rightLinks = [];
       node.leftLinks = [];
     });
     links.forEach(function(link) {
-      var source = link.source,
-          target = link.target;
+      source = link.source,
+      target = link.target;
       if (source.x < target.x) {
         source.rightLinks.push(link);
         target.leftLinks.push(link);
