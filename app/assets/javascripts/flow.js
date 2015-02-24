@@ -37,15 +37,15 @@ $(document).ready(function() {
 
   var arrowHead = defs.append("marker")
       .attr("id", "arrowHead")
-      .attr("viewBox", "0 0 5 10")
-      .attr("refX", ".15")
+      .attr("viewBox", "0 0 6 10")
+      .attr("refX", "1")
       .attr("refY", "5")
       .attr("markerUnits", "strokeWidth")
       .attr("markerWidth", "1")
       .attr("markerHeight", "1")
       .attr("orient", "auto")
       .append("path")
-        .attr("d", "M 0 0 L 5 5 L 0 10 z")
+        .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
 
   function update(graph) {
 
