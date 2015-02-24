@@ -201,10 +201,11 @@ d3.sankey = function() {
       ++x;
     }
 
+    compressInXDirection()
+
     var minX = d3.min(nodes, function(d) { return d.x; });
     var maxX = d3.max(nodes, function(d) { return d.x; }) - minX;
 
-    adjustLeft(minX);
     xScaleFactor = (size[0] - nodeWidth) / maxX
     scaleNodeXPositions(xScaleFactor);
   }
@@ -249,9 +250,24 @@ d3.sankey = function() {
     });
   }
 
-  function adjustLeft(minX) {
-    nodes.forEach(function(node) {
-      node.x -= minX
+  function compressInXDirection() {
+    var connectedNodesXPositions,
+        nodesByXPosition = d3.nest()
+          .key(function(d) { return d.x; })
+          .sortKeys(d3.ascending)
+          .entries(nodes)
+          .map(function(d) { return d.values; });
+
+    nodesByXPosition.forEach(function(xnodes) {
+      xnodes.forEach(function(node) {
+        connectedNodesXPositions = node.connectedNodes.map(function(d) { return d.x })
+        // keep decrementing the x value of the node
+        // unless it would have the same x value as one of its source or target nodes
+        // or node.x is already 0
+        while (node.x > 0 && connectedNodesXPositions.indexOf(node.x - 1) < 0) {
+          node.x -= 1;
+        }
+      });
     });
   }
 
