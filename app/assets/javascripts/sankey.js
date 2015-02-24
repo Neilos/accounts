@@ -128,7 +128,7 @@ d3.sankey = function() {
   };
 
   sankey.connected = function(nodeA, nodeB) {
-    return nodeA.connectedNodes.indexOf(nodeB) > 0;
+    return nodeA.connectedNodes.indexOf(nodeB) >= 0;
   };
 
   // Populate the sourceLinks and targetLinks for each node.
