@@ -6,6 +6,7 @@ $(document).ready(function() {
 
   var nodeDefaultOpacity = .9,
       nodeFadedOpacity = .1,
+      nodeHighlightedOpacity = .5,
       linkDefaultOpacity = .5,
       linkFadedOpacity = .05,
       linkHighlightedOpacity = .9,
@@ -181,6 +182,12 @@ $(document).ready(function() {
 
     // fade in and out links and nodes that aren't connected to this node
     nodeEnter.on("mouseenter", function(g, i) {
+        d3.select(this).select("rect")
+          .style("fill", function(d) {
+            return d.color = d.netFlow > 0 ? positiveFlowColor : negativeFlowColor;
+          })
+          .style("fill-opacity", nodeHighlightedOpacity);
+
         svg.selectAll(".link")
           .filter(function(d) { return d.source !== g && d.target !== g; })
             .style("marker-end", function(d) {
@@ -218,6 +225,12 @@ $(document).ready(function() {
       })
 
     nodeEnter.on("mouseleave", function(g, i) {
+        d3.select(this).select("rect")
+          .style("fill", function(d) {
+            return d.color = color(d.name.replace(/ .*/, ""))
+          })
+          .style("fill-opacity", nodeDefaultOpacity);
+
         svg.selectAll(".link")
           .style("stroke", linkColor)
           .style("marker-end", function(d) {
@@ -264,7 +277,9 @@ $(document).ready(function() {
     node.select("rect")
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
         .style("fill-opacity", nodeDefaultOpacity)
-        .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
+        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("stroke-opacity", "1")
+        .style("stroke-width", "3px")
       .transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
