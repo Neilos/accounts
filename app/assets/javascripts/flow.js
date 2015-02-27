@@ -11,7 +11,9 @@ $(document).ready(function() {
       linkHighlightedOpacity = .9,
       positiveFlowColor = "#0066FF",
       negativeFlowColor = "#FF0000",
-      linkColor = "#808080";
+      linkColor = "#808080",
+      transitionDelay = 0
+      transitionDuration = 400;
 
   var units = "Widgets",
       formatNumber = function(d) {
@@ -108,18 +110,16 @@ $(document).ready(function() {
 
     linkEnter.append("title")
 
-    linkEnter.on('mouseover', function(d){
+    linkEnter.on('mouseenter', function(d){
         d3.select(this)
           .style("stroke", linkColor)
-          .transition()
-            .style("opacity", linkHighlightedOpacity)
+          .style("opacity", linkHighlightedOpacity)
       })
 
-    linkEnter.on('mouseout', function(d) {
+    linkEnter.on('mouseleave', function(d) {
         d3.select(this)
           .style("stroke", linkColor)
-          .transition()
-            .style("opacity", linkDefaultOpacity)
+          .style("opacity", linkDefaultOpacity)
       });
 
     // ENTER + UPDATE
@@ -136,6 +136,8 @@ $(document).ready(function() {
         .style("stroke", linkColor)
         .style("opacity", linkDefaultOpacity)
       .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
         .attr("d", path)
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
@@ -158,7 +160,12 @@ $(document).ready(function() {
         .data(graph.nodes, function(d) { return d.id })
 
     // UPDATE ONLY
-    node.attr("class", "node update")
+
+    // Move to the correct position
+    node.transition()
+      .delay(transitionDelay)
+      .duration(transitionDuration)
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
     // ENTER
     var nodeEnter = node.enter().append("g").attr("class", "node enter")
@@ -168,13 +175,15 @@ $(document).ready(function() {
     nodeEnter.append("rect")
 
     // fade in and out links and nodes that aren't connected to this node
-    nodeEnter.on("mouseover", function(g, i) {
+    nodeEnter.on("mouseenter", function(g, i) {
         svg.selectAll(".link")
           .filter(function(d) { return d.source !== g && d.target !== g; })
             .style("marker-end", function(d) {
               return 'url(#arrowHead)'
             })
           .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
             .style("opacity", linkFadedOpacity);
 
         svg.selectAll(".link")
@@ -198,20 +207,27 @@ $(document).ready(function() {
             return (d.name == g.name) ? false : !sankey.connected(d, g)
           })
           .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
             .style("opacity", nodeFadedOpacity);
       })
 
-    nodeEnter.on("mouseout", function(g, i) {
+    nodeEnter.on("mouseleave", function(g, i) {
         svg.selectAll(".link")
           .style("stroke", linkColor)
           .style("marker-end", function(d) {
             return 'url(#arrowHead)'
           })
           .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
             .style("opacity", linkDefaultOpacity);
 
         svg.selectAll(".node")
-          .transition().style("opacity", nodeDefaultOpacity);
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", nodeDefaultOpacity);
       });
 
     // ENTER + UPDATE
@@ -219,10 +235,6 @@ $(document).ready(function() {
         .text(function(d) {
           return d.name + "\nNet flow: " + formatFlow(d.netFlow);
         });
-
-    // Move to the correct position
-    node.transition()
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
     // allow nodes to be dragged to new positions
     node.call(d3.behavior.drag()
@@ -249,6 +261,8 @@ $(document).ready(function() {
         .style("fill-opacity", nodeDefaultOpacity)
         .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
       .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth());
 
@@ -266,8 +280,8 @@ $(document).ready(function() {
           ) + ")"
         );
       sankey.relayout();
-      svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
       link.attr("d", path);
+      svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
     }
 
   }
@@ -278,8 +292,34 @@ $(document).ready(function() {
 
   setInterval(function() {
     d3.json("sankey-formatted.json", function(error, graph) {
-      update(graph)
+
+      d3.selectAll('path.link')
+        .interrupt() // interrupt current transition if any
+        .transition() // preempt scheduled transitions if any
+        .attr('pointer-events', 'none')
+
+      d3.selectAll('.node')
+        .interrupt() // interrupt current transition if any
+        .transition() // preempt scheduled transitions if any
+        .attr('pointer-events', 'none')
+
+      setTimeout(function() {
+        update(graph)
+
+        setTimeout(function() {
+          d3.selectAll('path.link')
+            .interrupt() // interrupt current transition if any
+            .transition() // preempt scheduled transitions if any
+            .attr('pointer-events', 'all')
+
+          d3.selectAll('.node')
+            .interrupt() // interrupt current transition if any
+            .transition() // preempt scheduled transitions if any
+            .attr('pointer-events', 'all')
+        }, transitionDelay + transitionDuration + 200)
+      }, transitionDelay + transitionDuration + 200)
+
     });
-  }, 3000);
+  }, 7000);
 
 });
