@@ -99,13 +99,28 @@ $(document).ready(function() {
     var link = svg.selectAll("path.link")
         .data(graph.links, function(d) { return d.id })
 
-    // UPDATE
-    link.attr("class", "link update")
+    // UPDATE ONLY
 
     // ENTER
-    link.enter().append("path")
+    var linkEnter = link.enter().append("path")
         .attr("class", "link enter")
-        .append("title")
+        .style("fill", "none")
+
+    linkEnter.append("title")
+
+    linkEnter.on('mouseover', function(d){
+        d3.select(this)
+          .style("stroke", linkColor)
+          .transition()
+            .style("opacity", linkHighlightedOpacity)
+      })
+
+    linkEnter.on('mouseout', function(d) {
+        d3.select(this)
+          .style("stroke", linkColor)
+          .transition()
+            .style("opacity", linkDefaultOpacity)
+      });
 
     // ENTER + UPDATE
     link.sort(function(a, b) { return b.dy - a.dy; })
@@ -118,7 +133,6 @@ $(document).ready(function() {
         .style("marker-end", function(d) {
           return 'url(#arrowHead)'
         })
-        .style("fill", "none")
         .style("stroke", linkColor)
         .style("opacity", linkDefaultOpacity)
       .transition()
@@ -135,21 +149,6 @@ $(document).ready(function() {
           }
         });
 
-    // highlight links on hover
-    link
-      .on('mouseover', function(d){
-        d3.select(this)
-          .style("stroke", linkColor)
-          .transition()
-            .style("opacity", linkHighlightedOpacity)
-      })
-      .on('mouseout', function(d) {
-        d3.select(this)
-          .style("stroke", linkColor)
-          .transition()
-            .style("opacity", linkDefaultOpacity)
-      });
-
     // EXIT
     link.exit().remove();
 
@@ -158,56 +157,18 @@ $(document).ready(function() {
     var node = svg.selectAll(".node")
         .data(graph.nodes, function(d) { return d.id })
 
-    // UPDATE
+    // UPDATE ONLY
     node.attr("class", "node update")
-      .transition()
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
     // ENTER
-    var nodeEnter = node.enter().append("g")
-      .attr("class", "node enter")
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+    var nodeEnter = node.enter().append("g").attr("class", "node enter")
+    nodeEnter.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
 
-    // ENTER + UPDATE
-    node.select("title")
-        .text(function(d) {
-          return d.name + "\nNet flow: " + formatFlow(d.netFlow);
-        });
-
-    // add in the text for the nodes
-    node.filter(function(d) { return d.value !== 0; })
-      .select("text")
-        .attr("x", -6)
-        .attr("y", function(d) { return d.dy / 2; })
-        .attr("dy", ".35em")
-        .attr("text-anchor", "end")
-        .attr("transform", null)
-        .text(function(d) { return d.name; })
-      .filter(function(d) { return d.x < width / 2; })
-        .attr("x", 6 + sankey.nodeWidth())
-        .attr("text-anchor", "start");
-
-    // add the rectangles for the nodes
-    node.select("rect")
-        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("fill-opacity", nodeDefaultOpacity)
-        .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
-      .transition()
-        .attr("height", function(d) { return d.dy; })
-        .attr("width", sankey.nodeWidth());
-
-    // allow nodes to be dragged to new positions
-    node.call(d3.behavior.drag()
-        .origin(function(d) { return d; })
-        .on("dragstart", function() { this.parentNode.appendChild(this); })
-        .on("drag", dragmove));
-
     // fade in and out links and nodes that aren't connected to this node
-    node
-      .on("mouseover", function(g, i) {
+    nodeEnter.on("mouseover", function(g, i) {
         svg.selectAll(".link")
           .filter(function(d) { return d.source !== g && d.target !== g; })
             .style("marker-end", function(d) {
@@ -239,7 +200,8 @@ $(document).ready(function() {
           .transition()
             .style("opacity", nodeFadedOpacity);
       })
-      .on("mouseout", function(g, i) {
+
+    nodeEnter.on("mouseout", function(g, i) {
         svg.selectAll(".link")
           .style("stroke", linkColor)
           .style("marker-end", function(d) {
@@ -249,11 +211,46 @@ $(document).ready(function() {
             .style("opacity", linkDefaultOpacity);
 
         svg.selectAll(".node")
-          .filter(function(d) {
-            return (d.name == g.name) ? false : !sankey.connected(d, g)
-          })
           .transition().style("opacity", nodeDefaultOpacity);
       });
+
+    // ENTER + UPDATE
+    node.select("title")
+        .text(function(d) {
+          return d.name + "\nNet flow: " + formatFlow(d.netFlow);
+        });
+
+    // Move to the correct position
+    node.transition()
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+
+    // allow nodes to be dragged to new positions
+    node.call(d3.behavior.drag()
+        .origin(function(d) { return d; })
+        .on("dragstart", function() { this.parentNode.appendChild(this); })
+        .on("drag", dragmove));
+
+    // add in the text for the nodes
+    node.filter(function(d) { return d.value !== 0; })
+      .select("text")
+        .attr("x", -6)
+        .attr("y", function(d) { return d.dy / 2; })
+        .attr("dy", ".35em")
+        .attr("text-anchor", "end")
+        .attr("transform", null)
+        .text(function(d) { return d.name; })
+      .filter(function(d) { return d.x < width / 2; })
+        .attr("x", 6 + sankey.nodeWidth())
+        .attr("text-anchor", "start");
+
+    // add the rectangles for the nodes
+    node.select("rect")
+        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("fill-opacity", nodeDefaultOpacity)
+        .style("stroke", function(d) { return d3.rgb(d.color).darker(0.3); })
+      .transition()
+        .attr("height", function(d) { return d.dy; })
+        .attr("width", sankey.nodeWidth());
 
     // EXIT
     node.exit().remove();
@@ -279,10 +276,10 @@ $(document).ready(function() {
     update(graph)
   });
 
-  // setInterval(function() {
-  //   d3.json("sankey-formatted.json", function(error, graph) {
-  //     update(graph)
-  //   });
-  // }, 2000);
+  setInterval(function() {
+    d3.json("sankey-formatted.json", function(error, graph) {
+      update(graph)
+    });
+  }, 3000);
 
 });
