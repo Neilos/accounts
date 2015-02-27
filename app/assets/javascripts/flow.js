@@ -34,6 +34,11 @@ $(document).ready(function() {
       .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
+  // group the links and nodes
+  // so that ones set can be drawn on top of the other
+  svg.append("g").attr("id", "links")
+  svg.append("g").attr("id", "nodes");
+
   // Set the sankey diagram properties
   var sankey = d3.sankey()
       .nodeWidth(36)
@@ -98,7 +103,7 @@ $(document).ready(function() {
       .layout(32);
 
     // DATA JOIN
-    var link = svg.selectAll("path.link")
+    var link = svg.select("#links").selectAll("path.link")
         .data(graph.links, function(d) { return d.id })
 
     // UPDATE ONLY
@@ -156,7 +161,7 @@ $(document).ready(function() {
 
 
     // DATA JOIN
-    var node = svg.selectAll(".node")
+    var node = svg.select("#nodes").selectAll(".node")
         .data(graph.nodes, function(d) { return d.id })
 
     // UPDATE ONLY
