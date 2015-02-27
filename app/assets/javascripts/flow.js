@@ -55,7 +55,7 @@ $(document).ready(function() {
       .attr("orient", "auto")
       .style("fill", linkColor)
       .append("path")
-        .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
+        .attr("d", "M 0 0 L 3 0 L 6 5 L 3 10 L 0 10 z")
 
     var arrowHead = defs.append("marker")
       .attr("id", "arrowHeadNegativeFlow")
@@ -68,7 +68,7 @@ $(document).ready(function() {
       .attr("orient", "auto")
       .style("fill", negativeFlowColor)
       .append("path")
-        .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
+        .attr("d", "M 0 0 L 3 0 L 6 5 L 3 10 L 0 10 z")
 
     var arrowHead = defs.append("marker")
         .attr("id", "arrowHeadPositiveFlow")
@@ -81,7 +81,7 @@ $(document).ready(function() {
         .attr("orient", "auto")
         .style("fill", positiveFlowColor)
         .append("path")
-          .attr("d", "M 0 0 L 1 0 L 6 5 L 1 10 L 0 10 z")
+          .attr("d", "M 0 0 L 3 0 L 6 5 L 3 10 L 0 10 z")
 
   function update(graph) {
 
