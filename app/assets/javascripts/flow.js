@@ -105,7 +105,7 @@ $(document).ready(function() {
 
     // ENTER
     var linkEnter = link.enter().append("path")
-        .attr("class", "link enter")
+        .attr("class", "link")
         .style("fill", "none")
 
     linkEnter.append("title")
@@ -168,7 +168,7 @@ $(document).ready(function() {
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
     // ENTER
-    var nodeEnter = node.enter().append("g").attr("class", "node enter")
+    var nodeEnter = node.enter().append("g").attr("class", "node")
     nodeEnter.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
     nodeEnter.append("title")
     nodeEnter.append("text")
