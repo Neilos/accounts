@@ -13,8 +13,8 @@ $(document).ready(function() {
       positiveFlowColor = "#0066FF",
       negativeFlowColor = "#FF0000",
       linkColor = "#808080",
-      transitionDelay = 0
-      transitionDuration = 400;
+      transitionDelay = 50
+      transitionDuration = 300;
 
   var units = "Widgets",
       formatNumber = function(d) {
@@ -113,14 +113,20 @@ $(document).ready(function() {
 
     linkEnter.on('mouseenter', function(d){
         d3.select(this)
-          .style("stroke", linkColor)
+        .style("stroke", linkColor)
+        .transition()
+          .delay(transitionDelay)
+          .duration(transitionDuration)
           .style("opacity", linkHighlightedOpacity)
       })
 
     linkEnter.on('mouseleave', function(d) {
         d3.select(this)
           .style("stroke", linkColor)
-          .style("opacity", linkDefaultOpacity)
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", linkDefaultOpacity)
       });
 
     // ENTER + UPDATE
