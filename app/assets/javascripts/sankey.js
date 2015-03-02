@@ -65,13 +65,21 @@ d3.sankey = function() {
     computeNodeHierarchy();
     computeNodeLinks();
     computeParentLinks();
+    mergeLinks();
+
     computeNodeValues();
+
     computeConnectedNodes();
     computeNodeXPositions();
     computeLeftAndRightLinks();
     computeNodeValues();
     computeNodeYPositions(iterations);
+
+    computeLeftAndRightLinks();
+    computeNodeValues();
+
     computeLinkYPositions();
+    computeNodeValues();
     return sankey;
   };
 
@@ -202,6 +210,27 @@ d3.sankey = function() {
       }
     })
     links = links.concat(newLinks);
+  }
+
+  // To reduce clutter in the diagram merge links that are from the
+  // same source to the same target by creating a new link
+  // with a value equal to the sum of the values of the merged links
+  function mergeLinks() {
+    var linkGroups = d3.nest()
+      .key(function(d) { return d.source.id + "->" + d.target.id; })
+      .entries(links)
+      .map(function(d) { return d.values; });
+
+    links = linkGroups.map(function(linkGroup) {
+      return linkGroup.reduce(function(previousLink, currentLink, index, array) {
+        return {
+          "source": previousLink.source,
+          "target": previousLink.target,
+          "id": d3.min([previousLink.id, currentLink.id]),
+          "value": previousLink.value + currentLink.value
+        };
+      });
+    });
   }
 
   // Compute the value of each node by summing the associated links.
