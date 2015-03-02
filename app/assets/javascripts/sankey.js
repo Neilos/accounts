@@ -74,6 +74,8 @@ d3.sankey = function() {
     computeLeftAndRightLinks();
     computeNodeValues();
     computeNodeYPositions(iterations);
+    removeChildNodes();
+    removeChildLinks();
 
     computeLeftAndRightLinks();
     computeNodeValues();
@@ -245,6 +247,20 @@ d3.sankey = function() {
       node.netFlow = d3.sum(node.targetLinks, value) - d3.sum(node.sourceLinks, value);
       node.dy = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
       node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0)
+    });
+  }
+
+  // Remove nodes with a parent (child nodes aren't shown)
+  function removeChildNodes() {
+    nodes = nodes.filter(function(node) {
+      return !node.parent;
+    });
+  }
+
+  // Remove links to or from nodes with a parent (child nodes aren't shown)
+  function removeChildLinks() {
+    links = links.filter(function(link) {
+      return !link.source.parent && !link.target.parent;
     });
   }
 
