@@ -43,7 +43,9 @@ d3.sankey = function() {
 
   sankey.links = function(_) {
     if (!arguments.length) return links;
-    links = _;
+    links = _.filter(function(link) {
+      return link.source !== link.target;
+    });
     return sankey;
   };
 

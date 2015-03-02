@@ -93,11 +93,6 @@ $(document).ready(function() {
 
   function update(graph) {
 
-    // filter out links that go nowhere
-    graph.links = graph.links.filter(function(link) {
-      return link.source !== link.target;
-    });
-
     sankey
       .nodes(graph.nodes)
       .links(graph.links)
