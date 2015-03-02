@@ -64,6 +64,7 @@ d3.sankey = function() {
     initializeNodeMap();
     computeNodeHierarchy();
     computeNodeLinks();
+    computeParentLinks();
     computeNodeValues();
     computeConnectedNodes();
     computeNodeXPositions();
@@ -184,6 +185,23 @@ d3.sankey = function() {
       sourceNode.sourceLinks.push(link);
       targetNode.targetLinks.push(link);
     });
+  }
+
+  // compute parent links
+  function computeParentLinks() {
+    var source, target, parentLink,
+        newLinks = [];
+    links.forEach(function(link) {
+      source = link.source.parent ? link.source.parent : link.source;
+      target = link.target.parent ? link.target.parent : link.target;
+      if ((source !== link.source || target !== link.target) && source !== target) {
+        parentLink = { source: source, target: target, value: link.value, id: source.id + "-" + target.id };
+        newLinks.push(parentLink)
+        source.sourceLinks.push(parentLink)
+        target.targetLinks.push(parentLink)
+      }
+    })
+    links = links.concat(newLinks);
   }
 
   // Compute the value of each node by summing the associated links.
