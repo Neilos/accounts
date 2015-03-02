@@ -100,7 +100,7 @@ $(document).ready(function() {
 
     // DATA JOIN
     var link = svg.select("#links").selectAll("path.link")
-        .data(graph.links, function(d) { return d.id })
+        .data(sankey.links(), function(d) { return d.id })
 
     // UPDATE ONLY
 
@@ -158,7 +158,7 @@ $(document).ready(function() {
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
-        .data(graph.nodes, function(d) { return d.id })
+        .data(sankey.nodes(), function(d) { return d.id })
 
     // UPDATE ONLY
 
