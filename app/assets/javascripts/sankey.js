@@ -37,17 +37,27 @@ d3.sankey = function() {
   };
 
   sankey.nodes = function(_) {
-    if (!arguments.length) return nodes;
-    nodes = _;
-    return sankey;
+    if (!arguments.length) {
+      return nodes.filter(function(node) {
+        return !node.parent;
+      });
+    } else {
+      nodes = _;
+      return sankey;
+    }
   };
 
   sankey.links = function(_) {
-    if (!arguments.length) return links;
-    links = _.filter(function(link) {
-      return link.source !== link.target;
-    });
-    return sankey;
+    if (!arguments.length) {
+      return links.filter(function(link) {
+        return !link.source.parent && !link.target.parent;
+      });
+    } else {
+      links = _.filter(function(link) {
+        return link.source !== link.target;
+      });
+      return sankey;
+    }
   };
 
   sankey.size = function(_) {
@@ -72,16 +82,11 @@ d3.sankey = function() {
     computeConnectedNodes();
     computeNodeXPositions();
     computeLeftAndRightLinks();
+
     computeNodeValues();
+
     computeNodeYPositions(iterations);
-    removeChildNodes();
-    removeChildLinks();
-
-    computeLeftAndRightLinks();
-    computeNodeValues();
-
     computeLinkYPositions();
-    computeNodeValues();
     return sankey;
   };
 
@@ -188,8 +193,8 @@ d3.sankey = function() {
   function computeNodeLinks() {
     var sourceNode, targetNode;
     links.forEach(function(link) {
-      sourceNode = nodeMap[link.source];
-      targetNode = nodeMap[link.target];
+      sourceNode = nodeMap[link.source] || link.source;
+      targetNode = nodeMap[link.target] || link.target;
       link.source = sourceNode;
       link.target = targetNode;
       sourceNode.sourceLinks.push(link);

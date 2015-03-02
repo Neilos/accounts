@@ -91,12 +91,7 @@ $(document).ready(function() {
         .append("path")
           .attr("d", "M 0 0 L 3 0 L 6 5 L 3 10 L 0 10 z")
 
-  function update(graph) {
-
-    sankey
-      .nodes(graph.nodes)
-      .links(graph.links)
-      .layout(32);
+  function update() {
 
     // DATA JOIN
     var link = svg.select("#links").selectAll("path.link")
@@ -160,7 +155,6 @@ $(document).ready(function() {
 
     // EXIT
     link.exit().remove();
-
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
@@ -255,10 +249,14 @@ $(document).ready(function() {
             .style("opacity", nodeDefaultOpacity);
       });
 
+    nodeEnter.filter(function (d) { return d.children.length; })
+      .on("dblclick", showHideChildren)
+
     // ENTER + UPDATE
     node.select("title")
         .text(function(d) {
-          return d.name + "\nNet flow: " + formatFlow(d.netFlow);
+          var additionalInstructions = d.children.length ? "\n(Double click to expand)" : ""
+          return d.name + "\nNet flow: " + formatFlow(d.netFlow) + additionalInstructions;
         });
 
     // allow nodes to be dragged to new positions
@@ -311,10 +309,28 @@ $(document).ready(function() {
       svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
     }
 
+    function showHideChildren(node) {
+      node.children.forEach(function(child) {
+        if (child.parent) {
+          child._parent = child.parent;
+          child.parent = null;
+        } else {
+          child.parent = child._parent;
+          child._parent = null;
+        }
+      });
+      update();
+    }
+
   }
 
+
   d3.json("sankey-formatted.json", function(error, graph) {
-    update(graph)
+    sankey
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .layout(32);
+    update()
   });
 
   setInterval(function() {
@@ -331,7 +347,11 @@ $(document).ready(function() {
         .attr('pointer-events', 'none')
 
       setTimeout(function() {
-        update(graph)
+        sankey
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .layout(32);
+          update()
 
         setTimeout(function() {
           d3.selectAll('path.link')
