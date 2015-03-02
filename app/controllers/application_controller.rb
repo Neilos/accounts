@@ -10,11 +10,16 @@ class ApplicationController < ActionController::Base
   def sankey
     data = {
       "nodes" => [
-        {"node" => 0,"name" => "node0", "id"=>1},
-        {"node" => 1,"name" => "node1", "id"=>2},
-        {"node" => 2,"name" => "node2", "id"=>3},
-        {"node" => 3,"name" => "node3", "id"=>4},
-        {"node" => 4,"name" => "node4", "id"=>5},
+        {"node" => 0,"name" => "node0", "id"=>0, "parent" => nil},
+        {"node" => 1,"name" => "node1", "id"=>1, "parent" => 0},
+        {"node" => 2,"name" => "node2", "id"=>2, "parent" => 0},
+        {"node" => 3,"name" => "node3", "id"=>3, "parent" => 0},
+        {"node" => 4,"name" => "node4", "id"=>4, "parent" => 0},
+        {"node" => 5,"name" => "node5", "id"=>5, "parent" => nil},
+        {"node" => 6,"name" => "node6", "id"=>6, "parent" => nil},
+        {"node" => 7,"name" => "node7", "id"=>7, "parent" => nil},
+        {"node" => 8,"name" => "node8", "id"=>8, "parent" => nil},
+        {"node" => 9,"name" => "node9", "id"=>9, "parent" => nil},
       ],
       "links" => [
         {"source" => Random.new.rand(0..4),"target" => Random.new.rand(0..4),"value" => Random.new.rand(1..100), "id"=>1},

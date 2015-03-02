@@ -7,6 +7,7 @@ d3.sankey = function() {
       size = [1, 1],
       nodes = [],
       nodeMap = {},
+      rootNodes = [],
       links = [],
       xScaleFactor = 1,
       yScaleFactor = 1
@@ -61,6 +62,7 @@ d3.sankey = function() {
 
   sankey.layout = function(iterations) {
     initializeNodeMap();
+    computeNodeHierarchy();
     computeNodeLinks();
     computeNodeValues();
     computeConnectedNodes();
@@ -154,6 +156,21 @@ d3.sankey = function() {
     node.targetLinks = [];
     node.leftLinks = [];
     node.connectedNodes = [];
+    node.children = [];
+  }
+
+  // generate hierarchical links between parent and child nodes
+  function computeNodeHierarchy() {
+    var parent;
+    nodes.forEach(function(node) {
+      parent = nodeMap[node.parent];
+      if (!!parent) {
+        node.parent = parent;
+        parent.children.push(node)
+      } else {
+        rootNodes.push(node)
+      }
+    })
   }
 
   // Populate the sourceLinks and targetLinks for each node.
