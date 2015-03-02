@@ -6,6 +6,7 @@ d3.sankey = function() {
       arrowheadScaleFactor = 0, // Specifies the proportion of a link's stroke width to be allowed for the marker at the end of the link.
       size = [1, 1],
       nodes = [],
+      nodeMap = {},
       links = [],
       xScaleFactor = 1,
       yScaleFactor = 1
@@ -52,7 +53,12 @@ d3.sankey = function() {
     return sankey;
   };
 
+  sankey.nodeMap = function() {
+    return nodeMap;
+  };
+
   sankey.layout = function(iterations) {
+    initializeNodeMap();
     computeNodeLinks();
     computeNodeValues();
     computeConnectedNodes();
@@ -131,25 +137,33 @@ d3.sankey = function() {
     return nodeA.connectedNodes.indexOf(nodeB) >= 0;
   };
 
+  // generates the nodeMap {"1": <node1>, "2": <node2>}
+  // and initializes the array properties of each node
+  function initializeNodeMap() {
+    nodes.forEach(function(node) {
+      nodeMap[node.id] = node;
+      initializeNodeArrayProperties(node);
+    });
+  }
+
+  function initializeNodeArrayProperties(node) {
+    node.sourceLinks = [];
+    node.rightLinks = [];
+    node.targetLinks = [];
+    node.leftLinks = [];
+    node.connectedNodes = [];
+  }
+
   // Populate the sourceLinks and targetLinks for each node.
   function computeNodeLinks() {
-    nodes.forEach(function(node) {
-      node.sourceLinks = [];
-      node.rightLinks = [];
-      node.targetLinks = [];
-      node.leftLinks = [];
-      node.connectedNodes = [];
-    });
+    var sourceNode, targetNode;
     links.forEach(function(link) {
-      var source = link.source,
-          target = link.target;
-      // If the source and target are numbers, assume they are indices.
-      if (typeof source === "number") source = link.source = nodes[link.source];
-      if (typeof target === "number") target = link.target = nodes[link.target];
-      source.sourceLinks.push(link);
-      source.rightLinks.push(link);
-      target.targetLinks.push(link);
-      source.leftLinks.push(link);
+      sourceNode = nodeMap[link.source];
+      targetNode = nodeMap[link.target];
+      link.source = sourceNode;
+      link.target = targetNode;
+      sourceNode.sourceLinks.push(link);
+      targetNode.targetLinks.push(link);
     });
   }
 
@@ -169,12 +183,16 @@ d3.sankey = function() {
   }
 
   function computeConnectedNodes() {
-    var source, target;
-    links.forEach(function(d) {
-      source = d.source
-      target = d.target
-      if (source.connectedNodes.indexOf(target) < 0) source.connectedNodes.push(target)
-      if (target.connectedNodes.indexOf(source) < 0) target.connectedNodes.push(source)
+    var sourceNode, targetNode;
+    links.forEach(function(link) {
+      sourceNode = link.source;
+      targetNode = link.target;
+      if (sourceNode.connectedNodes.indexOf(targetNode) < 0) {
+        sourceNode.connectedNodes.push(targetNode);
+      }
+      if (targetNode.connectedNodes.indexOf(sourceNode) < 0) {
+        targetNode.connectedNodes.push(sourceNode);
+      }
     });
   }
 
