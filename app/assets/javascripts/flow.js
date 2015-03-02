@@ -186,6 +186,9 @@ $(document).ready(function() {
           .style("fill", function(d) {
             return d.color = d.netFlow > 0 ? positiveFlowColor : negativeFlowColor;
           })
+          .style("stroke", function(d) {
+            return d3.rgb(d.color).darker(0.3);
+          })
           .style("fill-opacity", nodeHighlightedOpacity);
 
         svg.selectAll(".link")
@@ -228,6 +231,9 @@ $(document).ready(function() {
         d3.select(this).select("rect")
           .style("fill", function(d) {
             return d.color = color(d.name.replace(/ .*/, ""))
+          })
+          .style("stroke", function(d) {
+            return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3);
           })
           .style("fill-opacity", nodeDefaultOpacity);
 
@@ -279,7 +285,7 @@ $(document).ready(function() {
         .style("fill-opacity", nodeDefaultOpacity)
         .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-opacity", "1")
-        .style("stroke-width", "3px")
+        .style("stroke-width", "1px")
       .transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
