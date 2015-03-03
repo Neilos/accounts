@@ -295,9 +295,10 @@ $(document).ready(function() {
         .style("stroke-opacity", "1")
         .style("stroke-width", "1px")
       .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth());
-
 
     // the function for moving the nodes
     function dragmove(d) {
@@ -328,16 +329,6 @@ $(document).ready(function() {
       });
 
       sankey.expandAndCollapse()
-
-      link.transition()
-        .delay(transitionDelay)
-        .duration(transitionDuration)
-        .attr("d", path);
-
-      node.selectAll("rect").transition()
-        .delay(transitionDelay)
-        .duration(transitionDuration)
-        .attr("height", function(d) { return d.dy; })
 
       update();
     }
@@ -373,7 +364,9 @@ $(document).ready(function() {
           .links(graph.links)
           .initializeNodes(function(node) { node.visible = !node.parent })
           .layout(32);
+
         update();
+
         svg.selectAll(".node").select("rect")
           .transition()
             .attr("height", function(d) { return d.dy })
