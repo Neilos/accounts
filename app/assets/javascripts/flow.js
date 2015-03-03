@@ -141,7 +141,7 @@ $(document).ready(function() {
         .style("stroke", linkColor)
         .style("opacity", linkDefaultOpacity)
       .transition()
-        .delay(transitionDelay)
+        .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
         .attr("d", path)
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
