@@ -97,13 +97,6 @@ $(document).ready(function() {
     var link = svg.select("#links").selectAll("path.link")
         .data(sankey.links(), function(d) { return d.id })
 
-    // UPDATE ONLY
-    link.transition()
-        .delay(transitionDelay + transitionDuration)
-        .duration(transitionDuration)
-        .attr("d", path)
-        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-
     // EXIT
     link.exit().remove();
 
@@ -144,12 +137,13 @@ $(document).ready(function() {
           return 'url(#arrowHead)'
         })
         .style("stroke", linkColor)
+        .style("opacity", 0)
+        .attr("d", path)
+        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
       .transition()
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
         .style("opacity", linkDefaultOpacity)
-        .attr("d", path)
-        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
     // set the titles
     linkEnter.select("title")
