@@ -66,13 +66,20 @@ d3.sankey = function() {
     return nodeMap;
   };
 
-  sankey.layout = function(iterations) {
+  sankey.initializeNodes = function(callback) {
     initializeNodeMap();
     computeNodeHierarchy();
     computeNodeLinks();
     computeParentLinks();
     mergeLinks();
     computeConnectedNodes();
+
+    nodes.forEach(callback);
+
+    return sankey;
+  }
+
+  sankey.layout = function(iterations) {
     computeNodeXPositions();
     computeLeftAndRightLinks();
 
@@ -189,7 +196,6 @@ d3.sankey = function() {
         node.parent = null;
         rootNodes.push(node)
       }
-      node.visible = !node.parent
     })
   }
 

@@ -344,8 +344,9 @@ $(document).ready(function() {
     sankey
       .nodes(graph.nodes)
       .links(graph.links)
+      .initializeNodes(function(node) { node.visible = !node.parent })
       .layout(32);
-    update()
+    update();
   });
 
   setInterval(function() {
@@ -363,10 +364,11 @@ $(document).ready(function() {
 
       setTimeout(function() {
         sankey
-            .nodes(graph.nodes)
-            .links(graph.links)
-            .layout(32)
-        update()
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .initializeNodes(function(node) { node.visible = !node.parent })
+          .layout(32);
+        update();
         svg.selectAll(".node").select("rect")
           .transition()
             .attr("height", function(d) { return d.dy })
