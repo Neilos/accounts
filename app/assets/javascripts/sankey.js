@@ -450,8 +450,8 @@ d3.sankey = function() {
     function relaxLeftToRight(alpha) {
       nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node) {
-          if (node.targetLinks.length) {
-            var y = d3.sum(node.targetLinks, weightedSource) / d3.sum(node.targetLinks, value);
+          if (node.rightLinks.length) {
+            var y = d3.sum(node.rightLinks, weightedSource) / d3.sum(node.rightLinks, value);
             node.y += (y - center(node)) * alpha;
           }
         });
@@ -465,8 +465,8 @@ d3.sankey = function() {
     function relaxRightToLeft(alpha) {
       nodesByXPosition.slice().reverse().forEach(function(nodes) {
         nodes.forEach(function(node) {
-          if (node.sourceLinks.length) {
-            var y = d3.sum(node.sourceLinks, weightedTarget) / d3.sum(node.sourceLinks, value);
+          if (node.leftLinks.length) {
+            var y = d3.sum(node.leftLinks, weightedTarget) / d3.sum(node.leftLinks, value);
             node.y += (y - center(node)) * alpha;
           }
         });
