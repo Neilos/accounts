@@ -271,20 +271,6 @@ d3.sankey = function() {
     });
   }
 
-  // Remove nodes with a parent (child nodes aren't shown)
-  function removeChildNodes() {
-    nodes = nodes.filter(function(node) {
-      return !node.parent;
-    });
-  }
-
-  // Remove links to or from nodes with a parent (child nodes aren't shown)
-  function removeChildLinks() {
-    links = links.filter(function(link) {
-      return !link.source.parent && !link.target.parent;
-    });
-  }
-
   function computeConnectedNodes() {
     var sourceNode, targetNode;
     links.forEach(function(link) {
