@@ -185,31 +185,46 @@ $(document).ready(function() {
         .attr("width", sankey.nodeWidth());
 
     // EXIT
-    node.exit().remove();
+    node.exit()
+      .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .attr("opacity", nodeFadedOpacity)
+        .attr("transform", function(d) {
+          var endX = d._parent ? d._parent.x : d.x
+              endY = d._parent ? d._parent.y : d.y
+          return "translate(" + endX + "," + endY + ")";
+        })
+        .remove();
 
     // ENTER
     var nodeEnter = node.enter().append("g").attr("class", "node")
 
-    nodeEnter.transition()
-      .delay(transitionDelay)
-      .duration(transitionDuration)
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+    nodeEnter
+      .attr("transform", function(d) {
+        var startX = d._parent ? d._parent.x : d.x
+            startY = d._parent ? d._parent.y : d.y
+        return "translate(" + startX + "," + startY + ")";
+      })
+      .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
-        .style("fill-opacity", 0)
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("fill-opacity", nodeDefaultOpacity)
         .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
-        .style("stroke-opacity", "0")
         .style("stroke-width", "1px")
+        .style("stroke-opacity", "1")
+        .attr("height", function(d) { return d.dy; })
+        .attr("width", sankey.nodeWidth())
       .transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
-        .style("stroke-opacity", "1")
-        .style("fill-opacity", nodeDefaultOpacity)
-        .attr("height", function(d) { return d.dy; })
-        .attr("width", sankey.nodeWidth());
+        .style("opacity", nodeDefaultOpacity)
 
     // fade in and out links and nodes that aren't connected to this node
     nodeEnter.on("mouseenter", function(g, i) {
