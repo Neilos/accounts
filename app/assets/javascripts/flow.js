@@ -312,8 +312,8 @@ $(document).ready(function() {
       svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
     }
 
-    function showHideChildren(node) {
-      node.children.forEach(function(child) {
+    function showHideChildren(n) {
+      n.children.forEach(function(child) {
         if (child.parent) {
           child._parent = child.parent;
           child.parent = null;
@@ -322,6 +322,9 @@ $(document).ready(function() {
           child._parent = null;
         }
       });
+      sankey.expandAndCollapse()
+      link.transition().attr("d", path);
+      node.transition().attr("height", function(d) { return d.dy });
       update();
     }
 

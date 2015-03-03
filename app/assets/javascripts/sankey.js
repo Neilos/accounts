@@ -90,6 +90,14 @@ d3.sankey = function() {
     return sankey;
   };
 
+  sankey.expandAndCollapse = function() {
+    computeNodeValues();
+    computeLeftAndRightLinks();
+    computeNodeValues();
+    computeLinkYPositions()
+    return sankey;
+  }
+
   sankey.relayout = function() {
     computeLeftAndRightLinks();
     computeNodeValues();
@@ -249,9 +257,19 @@ d3.sankey = function() {
         d3.sum(node.leftLinks, value),
         d3.sum(node.rightLinks, value)
       );
+      node.filteredLeftLinks = node.leftLinks.filter(function(link) {
+        return !link.source.parent && !link.target.parent;
+      });
+      node.filteredRightLinks = node.rightLinks.filter(function(link) {
+        return !link.source.parent && !link.target.parent;
+      });
+      node.filteredValue = Math.max(
+        d3.sum(node.filteredLeftLinks, value),
+        d3.sum(node.filteredRightLinks, value)
+      );
       node.netFlow = d3.sum(node.targetLinks, value) - d3.sum(node.sourceLinks, value);
-      node.dy = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
-      node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0)
+      node.dy = node.filteredValue * yScaleFactor + linkSpacing * node.linkSpaceCount;
+      node.linkSpaceCount = Math.max(Math.max(node.filteredLeftLinks.length, node.filteredRightLinks.length) - 1, 0)
     });
   }
 
@@ -526,15 +544,35 @@ d3.sankey = function() {
       var ry = 0, ly = 0;
 
       node.rightLinks.forEach(function(link) {
-        if (link.direction > 0) { link.sy = ry; }
-        else { link.ty = ry; }
-        ry += link.dy + linkSpacing;
+        if (link.direction > 0) {
+          link.sy = ry;
+          if (!link.target.parent) {
+            ry += link.dy + linkSpacing;
+          }
+        }
+        else {
+          link.ty = ry;
+          if (!link.source.parent) {
+            ry += link.dy + linkSpacing;
+          }
+        }
+
       });
 
       node.leftLinks.forEach(function(link) {
-        if (link.direction < 0) { link.sy = ly; }
-        else { link.ty = ly; }
-        ly += link.dy + linkSpacing;
+        if (link.direction < 0) {
+          link.sy = ly;
+          if (!link.target.parent) {
+            ly += link.dy + linkSpacing;
+          }
+        }
+        else {
+          link.ty = ly;
+          if (!link.source.parent) {
+            ly += link.dy + linkSpacing;
+          }
+        }
+
       });
 
     });
