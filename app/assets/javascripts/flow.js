@@ -325,7 +325,10 @@ $(document).ready(function() {
         }
       });
       sankey.expandAndCollapse()
-      link.transition().attr("d", path);
+      link.transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .attr("d", path);
       update();
     }
 
