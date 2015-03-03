@@ -172,15 +172,12 @@ $(document).ready(function() {
     // EXIT
     node.exit().remove();
 
-    // Move to the correct position
-    node.transition()
-      .delay(transitionDelay)
-      .duration(transitionDuration)
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-
     // ENTER
     var nodeEnter = node.enter().append("g").attr("class", "node")
-    nodeEnter.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+    nodeEnter.transition()
+      .delay(transitionDelay)
+      .duration(transitionDuration)
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
@@ -329,7 +326,6 @@ $(document).ready(function() {
       });
       sankey.expandAndCollapse()
       link.transition().attr("d", path);
-      node.transition().attr("height", function(d) { return d.dy });
       update();
     }
 
