@@ -168,15 +168,48 @@ $(document).ready(function() {
         .data(sankey.nodes(), function(d) { return d.id })
 
     // UPDATE ONLY
+    node.transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .select("rect")
+        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("fill-opacity", nodeDefaultOpacity)
+        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("stroke-opacity", "1")
+        .style("stroke-width", "1px")
+      .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .attr("height", function(d) { return d.dy; })
+        .attr("width", sankey.nodeWidth());
 
     // EXIT
     node.exit().remove();
 
     // ENTER
     var nodeEnter = node.enter().append("g").attr("class", "node")
+
+    nodeEnter.transition()
+      .delay(transitionDelay)
+      .duration(transitionDuration)
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
+        .style("fill-opacity", 0)
+        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("stroke-opacity", "0")
+        .style("stroke-width", "1px")
+      .transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .style("stroke-opacity", "1")
+        .style("fill-opacity", nodeDefaultOpacity)
+        .attr("height", function(d) { return d.dy; })
+        .attr("width", sankey.nodeWidth());
 
     // fade in and out links and nodes that aren't connected to this node
     nodeEnter.on("mouseenter", function(g, i) {
@@ -257,11 +290,6 @@ $(document).ready(function() {
     node.filter(function (d) { return d.children.length; })
       .on("dblclick", showHideChildren)
 
-    node.transition()
-      .delay(transitionDelay)
-      .duration(transitionDuration)
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-
     node.select("title")
         .text(function(d) {
           var additionalInstructions = d.children.length ? "\n(Double click to expand)" : ""
@@ -286,19 +314,6 @@ $(document).ready(function() {
       .filter(function(d) { return d.x < width / 2; })
         .attr("x", 6 + sankey.nodeWidth())
         .attr("text-anchor", "start");
-
-    // add the rectangles for the nodes
-    node.selectAll("rect")
-        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("fill-opacity", nodeDefaultOpacity)
-        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
-        .style("stroke-opacity", "1")
-        .style("stroke-width", "1px")
-      .transition()
-        .delay(transitionDelay)
-        .duration(transitionDuration)
-        .attr("height", function(d) { return d.dy; })
-        .attr("width", sankey.nodeWidth());
 
     // the function for moving the nodes
     function dragmove(d) {
@@ -366,10 +381,6 @@ $(document).ready(function() {
           .layout(32);
 
         update();
-
-        svg.selectAll(".node").select("rect")
-          .transition()
-            .attr("height", function(d) { return d.dy })
 
         setTimeout(function() {
           d3.selectAll('path.link')
