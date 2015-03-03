@@ -98,6 +98,11 @@ $(document).ready(function() {
         .data(sankey.links(), function(d) { return d.id })
 
     // UPDATE ONLY
+    link.transition()
+        .delay(transitionDelay + transitionDuration)
+        .duration(transitionDuration)
+        .attr("d", path)
+        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
     // EXIT
     link.exit().remove();
