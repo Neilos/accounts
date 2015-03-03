@@ -97,6 +97,14 @@ $(document).ready(function() {
     var link = svg.select("#links").selectAll("path.link")
         .data(sankey.links(), function(d) { return d.id })
 
+    // UPDATE ONLY
+    link.transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
+        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+        .attr("d", path)
+        .style("opacity", linkDefaultOpacity)
+
     // EXIT
     link.exit().remove();
 
@@ -146,16 +154,14 @@ $(document).ready(function() {
         .style("opacity", linkDefaultOpacity)
 
     // set the titles
-    linkEnter.select("title")
-        .text(function(d) {
-          if (d.direction > 0) {
-            return d.source.name + " → " + d.target.name + "\n" + formatNumber(d.value);
-          } else {
-            return d.target.name + " ← " + d.source.name + "\n" + formatNumber(d.value);
-          }
-        });
-
-
+    link.select("title")
+      .text(function(d) {
+        if (d.direction > 0) {
+          return d.source.name + " → " + d.target.name + "\n" + formatNumber(d.value);
+        } else {
+          return d.target.name + " ← " + d.source.name + "\n" + formatNumber(d.value);
+        }
+      });
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
@@ -168,10 +174,6 @@ $(document).ready(function() {
 
     // ENTER
     var nodeEnter = node.enter().append("g").attr("class", "node")
-    nodeEnter.transition()
-      .delay(transitionDelay)
-      .duration(transitionDuration)
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
@@ -250,11 +252,17 @@ $(document).ready(function() {
             .style("opacity", nodeDefaultOpacity);
       });
 
+
+    // ENTER + UPDATE
     node.filter(function (d) { return d.children.length; })
       .on("dblclick", showHideChildren)
 
-    // ENTER + UPDATE
-    nodeEnter.select("title")
+    node.transition()
+      .delay(transitionDelay)
+      .duration(transitionDuration)
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+
+    node.select("title")
         .text(function(d) {
           var additionalInstructions = d.children.length ? "\n(Double click to expand)" : ""
           return d.name + "\nNet flow: " + formatFlow(d.netFlow) + additionalInstructions;
@@ -287,8 +295,6 @@ $(document).ready(function() {
         .style("stroke-opacity", "1")
         .style("stroke-width", "1px")
       .transition()
-        .delay(transitionDelay)
-        .duration(transitionDuration)
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth());
 
@@ -324,6 +330,9 @@ $(document).ready(function() {
         .duration(transitionDuration)
         .attr("d", path);
       update();
+      node.selectAll("rect")
+      .transition()
+        .attr("height", function(d) { return d.dy; })
     }
 
   }
@@ -354,8 +363,11 @@ $(document).ready(function() {
         sankey
             .nodes(graph.nodes)
             .links(graph.links)
-            .layout(32);
-          update()
+            .layout(32)
+        update()
+        svg.selectAll(".node").select("rect")
+          .transition()
+            .attr("height", function(d) { return d.dy })
 
         setTimeout(function() {
           d3.selectAll('path.link')
