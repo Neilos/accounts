@@ -36,7 +36,7 @@ $(document).ready(function() {
             "translate(" + margin.left + "," + margin.top + ")");
 
   // group the links and nodes
-  // so that ones set can be drawn on top of the other
+  // so that one set can be drawn on top of the other
   svg.append("g").attr("id", "links")
   svg.append("g").attr("id", "nodes");
 
@@ -99,6 +99,9 @@ $(document).ready(function() {
 
     // UPDATE ONLY
 
+    // EXIT
+    link.exit().remove();
+
     // ENTER
     var linkEnter = link.enter().append("path")
         .attr("class", "link")
@@ -125,7 +128,7 @@ $(document).ready(function() {
       });
 
     // ENTER + UPDATE
-    link.sort(function(a, b) { return b.dy - a.dy; })
+    linkEnter.sort(function(a, b) { return b.dy - a.dy; })
         .classed("leftToRight",function(d) {
           return d.direction > 0;
         })
@@ -144,7 +147,7 @@ $(document).ready(function() {
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
     // set the titles
-    link.select("title")
+    linkEnter.select("title")
         .text(function(d) {
           if (d.direction > 0) {
             return d.source.name + " → " + d.target.name + "\n" + formatNumber(d.value);
@@ -153,14 +156,16 @@ $(document).ready(function() {
           }
         });
 
-    // EXIT
-    link.exit().remove();
+
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
         .data(sankey.nodes(), function(d) { return d.id })
 
     // UPDATE ONLY
+
+    // EXIT
+    node.exit().remove();
 
     // Move to the correct position
     node.transition()
@@ -249,11 +254,11 @@ $(document).ready(function() {
             .style("opacity", nodeDefaultOpacity);
       });
 
-    nodeEnter.filter(function (d) { return d.children.length; })
+    node.filter(function (d) { return d.children.length; })
       .on("dblclick", showHideChildren)
 
     // ENTER + UPDATE
-    node.select("title")
+    nodeEnter.select("title")
         .text(function(d) {
           var additionalInstructions = d.children.length ? "\n(Double click to expand)" : ""
           return d.name + "\nNet flow: " + formatFlow(d.netFlow) + additionalInstructions;
@@ -279,7 +284,7 @@ $(document).ready(function() {
         .attr("text-anchor", "start");
 
     // add the rectangles for the nodes
-    node.select("rect")
+    node.selectAll("rect")
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
         .style("fill-opacity", nodeDefaultOpacity)
         .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
@@ -291,8 +296,6 @@ $(document).ready(function() {
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth());
 
-    // EXIT
-    node.exit().remove();
 
     // the function for moving the nodes
     function dragmove(d) {
