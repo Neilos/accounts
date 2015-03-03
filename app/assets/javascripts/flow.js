@@ -330,18 +330,20 @@ $(document).ready(function() {
       svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
     }
 
-    function showHideChildren(n) {
+    function showHideChildren(n, i) {
       n.children.forEach(function(child) {
         if (child.parent) {
           child._parent = child.parent;
           child.parent = null;
           child.visible = true;
+          this.visible = false;
         } else {
           child.parent = child._parent;
           child._parent = null;
           child.visible = false;
+          this.visible = true;
         }
-      });
+      }, n);
 
       sankey.expandAndCollapse()
 
