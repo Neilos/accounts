@@ -139,10 +139,10 @@ $(document).ready(function() {
           return 'url(#arrowHead)'
         })
         .style("stroke", linkColor)
-        .style("opacity", linkDefaultOpacity)
       .transition()
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
+        .style("opacity", linkDefaultOpacity)
         .attr("d", path)
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
