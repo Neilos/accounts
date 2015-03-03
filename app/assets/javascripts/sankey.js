@@ -86,6 +86,7 @@ d3.sankey = function() {
     computeNodeValues();
 
     computeNodeYPositions(iterations);
+    computeNodeValues();
     computeLinkYPositions();
     return sankey;
   };
