@@ -326,15 +326,20 @@ $(document).ready(function() {
           child.visible = false;
         }
       });
+
       sankey.expandAndCollapse()
+
       link.transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
         .attr("d", path);
-      update();
-      node.selectAll("rect")
-      .transition()
+
+      node.selectAll("rect").transition()
+        .delay(transitionDelay)
+        .duration(transitionDuration)
         .attr("height", function(d) { return d.dy; })
+
+      update();
     }
 
   }
