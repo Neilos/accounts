@@ -38,9 +38,7 @@ d3.sankey = function() {
 
   sankey.nodes = function(_) {
     if (!arguments.length) {
-      return nodes.filter(function(node) {
-        return !node.parent;
-      });
+      return nodes.filter(function(node) { return node.visible; });
     } else {
       nodes = _;
       return sankey;
@@ -49,12 +47,10 @@ d3.sankey = function() {
 
   sankey.links = function(_) {
     if (!arguments.length) {
-      return links.filter(function(link) {
-        return !link.source.parent && !link.target.parent;
-      });
+      return visible(links);
     } else {
       links = _.filter(function(link) {
-        return link.source !== link.target;
+        return link.source !== link.target; // filter out links that go nowhere
       });
       return sankey;
     }
@@ -190,8 +186,10 @@ d3.sankey = function() {
         node.parent = parent;
         parent.children.push(node)
       } else {
+        node.parent = null;
         rootNodes.push(node)
       }
+      node.visible = !node.parent
     })
   }
 
@@ -250,21 +248,20 @@ d3.sankey = function() {
   // Compute the number of spaces between the links
   // Compute the number of source links for later decrementing
   function computeNodeValues() {
+    var filteredLeftLinks, filteredRightLinks
     nodes.forEach(function(node) {
       node.value = Math.max(
         d3.sum(node.leftLinks, value),
         d3.sum(node.rightLinks, value)
       );
-      node.filteredLeftLinks = node.leftLinks.filter(function(link) {
-        return !link.source.parent && !link.target.parent;
-      });
-      node.filteredRightLinks = node.rightLinks.filter(function(link) {
-        return !link.source.parent && !link.target.parent;
-      });
+      filteredLeftLinks = visible(node.leftLinks)
+      filteredRightLinks = visible(node.rightLinks)
+
       node.filteredValue = Math.max(
-        d3.sum(node.filteredLeftLinks, value),
-        d3.sum(node.filteredRightLinks, value)
+        d3.sum(filteredLeftLinks, value),
+        d3.sum(filteredRightLinks, value)
       );
+
       node.netFlow = d3.sum(node.targetLinks, value) - d3.sum(node.sourceLinks, value);
       node.linkSpaceCount = Math.max(Math.max(filteredLeftLinks.length, filteredRightLinks.length) - 1, 0)
       node.dy = node.filteredValue * yScaleFactor + linkSpacing * node.linkSpaceCount;
@@ -530,13 +527,13 @@ d3.sankey = function() {
       node.rightLinks.forEach(function(link) {
         if (link.direction > 0) {
           link.sy = ry;
-          if (!link.target.parent) {
+          if (link.target.visible) {
             ry += link.dy + linkSpacing;
           }
         }
         else {
           link.ty = ry;
-          if (!link.source.parent) {
+          if (link.source.visible) {
             ry += link.dy + linkSpacing;
           }
         }
@@ -546,13 +543,13 @@ d3.sankey = function() {
       node.leftLinks.forEach(function(link) {
         if (link.direction < 0) {
           link.sy = ly;
-          if (!link.target.parent) {
+          if (link.target.visible) {
             ly += link.dy + linkSpacing;
           }
         }
         else {
           link.ty = ly;
-          if (!link.source.parent) {
+          if (link.source.visible) {
             ly += link.dy + linkSpacing;
           }
         }
@@ -580,6 +577,12 @@ d3.sankey = function() {
 
   function value(link) {
     return link.value;
+  }
+
+  function visible(linkCollection) {
+    return linkCollection.filter(function(link) {
+      return link.source.visible && link.target.visible;
+    });
   }
 
   return sankey;

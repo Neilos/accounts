@@ -319,9 +319,11 @@ $(document).ready(function() {
         if (child.parent) {
           child._parent = child.parent;
           child.parent = null;
+          child.visible = true;
         } else {
           child.parent = child._parent;
           child._parent = null;
+          child.visible = false;
         }
       });
       sankey.expandAndCollapse()
