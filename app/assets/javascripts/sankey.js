@@ -268,7 +268,7 @@ d3.sankey = function() {
         d3.sum(filteredRightLinks, value)
       );
 
-      node.netFlow = d3.sum(node.targetLinks, value) - d3.sum(node.sourceLinks, value);
+      node.netFlow = d3.sum(visible(node.targetLinks), value) - d3.sum(visible(node.sourceLinks), value);
       node.linkSpaceCount = Math.max(Math.max(filteredLeftLinks.length, filteredRightLinks.length) - 1, 0)
       node.dy = node.filteredValue * yScaleFactor + linkSpacing * node.linkSpaceCount;
     });
