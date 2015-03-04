@@ -37,23 +37,25 @@ d3.sankey = function() {
   };
 
   sankey.nodes = function(_) {
-    if (!arguments.length) {
-      return nodes.filter(function(node) { return node.visible; });
-    } else {
-      nodes = _;
-      return sankey;
-    }
+    if (!arguments.length) return nodes;
+    nodes = _;
+    return sankey;
+  };
+
+  sankey.visibleNodes = function() {
+    return nodes.filter(function(node) { return node.visible; });
   };
 
   sankey.links = function(_) {
-    if (!arguments.length) {
-      return visible(links);
-    } else {
-      links = _.filter(function(link) {
-        return link.source !== link.target; // filter out links that go nowhere
-      });
-      return sankey;
-    }
+    if (!arguments.length) return links;
+    links = _.filter(function(link) {
+      return link.source !== link.target; // filter out links that go nowhere
+    });
+    return sankey;
+  };
+
+  sankey.visibleLinks = function() {
+    return visible(links);
   };
 
   sankey.size = function(_) {
