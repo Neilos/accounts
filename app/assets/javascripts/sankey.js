@@ -108,7 +108,7 @@ d3.sankey = function() {
   };
 
   sankey.link = function() {
-    var curvature = .7;
+    var curvature = .5;
 
     function link(d) {
       if (d.source.x < d.target.x) {
@@ -120,28 +120,30 @@ d3.sankey = function() {
 
     function leftToRightLink(d) {
       var arrowLength = d.dy * arrowheadScaleFactor;
-      var straightSectionLength = d.dy / 4;
+      var straightSectionLength = (3 * d.dy / 4) - arrowLength;
       var x0 = d.source.x + d.source.dx
-          x1 = d.target.x - straightSectionLength - arrowLength,
-          xi = d3.interpolateNumber(x0, x1),
+          x1 = x0 + arrowLength,
+          x4 = d.target.x - straightSectionLength - arrowLength,
+          xi = d3.interpolateNumber(x0, x4),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
           y0 = d.source.y + d.sy + d.dy / 2,
           y1 = d.target.y + d.ty + d.dy / 2;
       return "M" + x0 + "," + y0
-           + "L" + x0 + "," + y0
+           + "L" + x1 + "," + y0
            + "C" + x2 + "," + y0
            + " " + x3 + "," + y1
-           + " " + x1 + "," + y1
-           + "L" + (x1 + straightSectionLength) + "," + y1
+           + " " + x4 + "," + y1
+           + "L" + (x4 + straightSectionLength) + "," + y1
     }
 
     function rightToLeftLink(d) {
       var arrowLength = d.dy * arrowheadScaleFactor;
       var straightSectionLength = d.dy / 4;
       var x0 = d.source.x
-          x1 = d.target.x + d.target.dx + straightSectionLength + arrowLength,
-          xi = d3.interpolateNumber(x0, x1),
+          x1 = x0 - arrowLength,
+          x4 = d.target.x + d.target.dx + straightSectionLength + arrowLength,
+          xi = d3.interpolateNumber(x0, x4),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
           y0 = d.source.y + d.sy + d.dy / 2,
@@ -150,8 +152,8 @@ d3.sankey = function() {
            + "L" + x0 + "," + y0
            + "C" + x2 + "," + y0
            + " " + x3 + "," + y1
-           + " " + x1 + "," + y1
-           + "L" + (x1 - straightSectionLength) + "," + y1
+           + " " + x4 + "," + y1
+           + "L" + (x4 - straightSectionLength) + "," + y1
     }
 
     link.curvature = function(_) {
@@ -432,14 +434,14 @@ d3.sankey = function() {
         return  discretionaryY / nodeValueSum;
       });
 
-      // Fat links are those with lengths less than twice their heights
+      // Fat links are those with lengths less than four times their heights
       // Fat links don't bend well
       // Test that yScaleFactor is not so big that it causes "fat" links; adjust yScaleFactor accordingly
       links.forEach(function(link) {
         var linkLength = Math.abs(link.source.x - link.target.x)
         var linkHeight = link.value * yScaleFactor;
-        if (linkLength / linkHeight < 2) {
-          yScaleFactor = 0.5 * linkLength / link.value
+        if (linkLength / linkHeight < 4) {
+          yScaleFactor = 0.25 * linkLength / link.value
         }
       });
 

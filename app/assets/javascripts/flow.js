@@ -1,8 +1,8 @@
 $(document).ready(function() {
 
-  var margin = {top: 10, right: 10, bottom: 10, left: 10},
+  var margin = {top: 50, right: 10, bottom: 10, left: 10},
       width = 700 - margin.left - margin.right,
-      height = 300 - margin.top - margin.bottom;
+      height = 600 - margin.top - margin.bottom;
 
   var nodeDefaultOpacity = .9,
       nodeFadedOpacity = .1,
