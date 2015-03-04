@@ -226,82 +226,28 @@ $(document).ready(function() {
         .duration(transitionDuration)
         .style("opacity", nodeDefaultOpacity)
 
-    // fade in and out links and nodes that aren't connected to this node
-    nodeEnter.on("mouseenter", function(g, i) {
-        d3.select(this).select("rect")
-          .style("fill", function(d) {
-            return d.color = d.netFlow > 0 ? positiveFlowColor : negativeFlowColor;
-          })
-          .style("stroke", function(d) {
-            return d3.rgb(d.color).darker(0.3);
-          })
-          .style("fill-opacity", nodeHighlightedOpacity);
-
-        svg.selectAll(".link")
-          .filter(function(d) { return d.source !== g && d.target !== g; })
-            .style("marker-end", function(d) {
-              return 'url(#arrowHead)'
-            })
-          .transition()
-            .delay(transitionDelay)
-            .duration(transitionDuration)
-            .style("opacity", linkFadedOpacity);
-
-        svg.selectAll(".link")
-          .filter(function(d) { return d.source == g; })
-            .style("marker-end", function(d) {
-              return 'url(#arrowHeadNegativeFlow)'
-            })
-            .style("stroke", negativeFlowColor)
-            .style("opacity", linkDefaultOpacity);
-
-        svg.selectAll(".link")
-          .filter(function(d) { return d.target == g; })
-            .style("marker-end", function(d) {
-              return 'url(#arrowHeadPositiveFlow)'
-            })
-            .style("stroke", positiveFlowColor)
-            .style("opacity", linkDefaultOpacity);
-
-        svg.selectAll(".node")
-          .filter(function(d) {
-            return (d.name == g.name) ? false : !sankey.connected(d, g)
-          })
-          .transition()
-            .delay(transitionDelay)
-            .duration(transitionDuration)
-            .style("opacity", nodeFadedOpacity);
-      })
-
-    nodeEnter.on("mouseleave", function(g, i) {
-        d3.select(this).select("rect")
-          .style("fill", function(d) {
-            return d.color = color(d.name.replace(/ .*/, ""))
-          })
-          .style("stroke", function(d) {
-            return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3);
-          })
-          .style("fill-opacity", nodeDefaultOpacity);
-
-        svg.selectAll(".link")
-          .style("stroke", linkColor)
-          .style("marker-end", function(d) {
-            return 'url(#arrowHead)'
-          })
-          .transition()
-            .delay(transitionDelay)
-            .duration(transitionDuration)
-            .style("opacity", linkDefaultOpacity);
-
-        svg.selectAll(".node")
-          .transition()
-            .delay(transitionDelay)
-            .duration(transitionDuration)
-            .style("opacity", nodeDefaultOpacity);
-      });
-
 
     // ENTER + UPDATE
+
+    node.on("mouseenter", function(g, i) {
+      restoreLinksAndNodes();
+      highlightConnected(g)
+      fadeUnconnected(g)
+
+      d3.select(this).select("rect")
+        .style("fill", function(d) {
+          return d.color = d.netFlow > 0 ? positiveFlowColor : negativeFlowColor;
+        })
+        .style("stroke", function(d) {
+          return d3.rgb(d.color).darker(0.3);
+        })
+        .style("fill-opacity", nodeHighlightedOpacity);
+    })
+
+    node.on("mouseleave", function(g, i) {
+      restoreLinksAndNodes();
+    });
+
     node.filter(function (d) { return d.children.length; })
       .on("dblclick", showHideChildren)
 
@@ -363,6 +309,68 @@ $(document).ready(function() {
       sankey.expandAndCollapse()
 
       update();
+    }
+
+    function restoreLinksAndNodes() {
+        link
+          .style("stroke", linkColor)
+          .style("marker-end", function(d) {
+            return 'url(#arrowHead)'
+          })
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", linkDefaultOpacity);
+
+        node.selectAll("rect")
+          .style("fill", function(d) {
+            return d.color = color(d.name.replace(/ .*/, ""))
+          })
+          .style("stroke", function(d) {
+            return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3);
+          })
+          .style("fill-opacity", nodeDefaultOpacity)
+
+        node
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", nodeDefaultOpacity);
+    }
+
+    function highlightConnected(g) {
+      link.filter(function(d) { return d.source == g; })
+          .style("marker-end", function(d) {
+            return 'url(#arrowHeadNegativeFlow)'
+          })
+          .style("stroke", negativeFlowColor)
+          .style("opacity", linkDefaultOpacity);
+
+      link.filter(function(d) { return d.target == g; })
+          .style("marker-end", function(d) {
+            return 'url(#arrowHeadPositiveFlow)'
+          })
+          .style("stroke", positiveFlowColor)
+          .style("opacity", linkDefaultOpacity);
+    }
+
+    function fadeUnconnected(g) {
+      link.filter(function(d) { return d.source !== g && d.target !== g; })
+          .style("marker-end", function(d) {
+            return 'url(#arrowHead)'
+          })
+        .transition()
+          .delay(transitionDelay)
+          .duration(transitionDuration)
+          .style("opacity", linkFadedOpacity);
+
+      node.filter(function(d) {
+          return (d.name == g.name) ? false : !sankey.connected(d, g)
+        })
+        .transition()
+          .delay(transitionDelay)
+          .duration(transitionDuration)
+          .style("opacity", nodeFadedOpacity);
     }
 
   }
