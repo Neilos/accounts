@@ -433,7 +433,7 @@ d3.sankey = function() {
       // Fat links are those with lengths less than twice their heights
       // Fat links don't bend well
       // Test that ky is not so big that it causes "fat" links; adjust ky accordingly
-      links.filter(function(link) {
+      links.forEach(function(link) {
         var linkLength = Math.abs(link.source.x - link.target.x)
         var linkHeight = link.value * ky;
         if (linkLength / linkHeight < 2) {
