@@ -165,7 +165,7 @@ $(document).ready(function() {
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
-        .data(sankey.visibleNodes(), function(d) { return d.id })
+        .data(sankey.collapsedNodes(), function(d) { return d.id })
 
     // UPDATE ONLY
     node.transition()
@@ -296,13 +296,13 @@ $(document).ready(function() {
         if (child.parent) {
           child._parent = child.parent;
           child.parent = null;
-          child.visible = true;
-          this.visible = false;
+          child.state = "collapsed";
+          this.state = "expanded";
         } else {
           child.parent = child._parent;
           child._parent = null;
-          child.visible = false;
-          this.visible = true;
+          child.state = "contained"
+          this.state = "collapsed";
         }
       }, n);
 
@@ -380,7 +380,7 @@ $(document).ready(function() {
     sankey
       .nodes(graph.nodes)
       .links(graph.links)
-      .initializeNodes(function(node) { node.visible = !node.parent })
+      .initializeNodes(function(node) { node.state = node.parent ? "contained" : "collapsed"})
       .layout(32);
     update();
   });
@@ -402,7 +402,7 @@ $(document).ready(function() {
         sankey
           .nodes(graph.nodes)
           .links(graph.links)
-          .initializeNodes(function(node) { node.visible = !node.parent })
+          .initializeNodes(function(node) { node.state = node.parent ? "contained" : "collapsed" })
           .layout(32);
 
         update();

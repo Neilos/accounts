@@ -42,8 +42,8 @@ d3.sankey = function() {
     return sankey;
   };
 
-  sankey.visibleNodes = function() {
-    return nodes.filter(function(node) { return node.visible; });
+  sankey.collapsedNodes = function() {
+    return nodes.filter(function(node) { return node.state == "collapsed"; });
   };
 
   sankey.links = function(_) {
@@ -537,13 +537,13 @@ d3.sankey = function() {
       node.rightLinks.forEach(function(link) {
         if (link.direction > 0) {
           link.sy = ry;
-          if (link.target.visible) {
+          if (link.target.state == "collapsed") {
             ry += link.dy + linkSpacing;
           }
         }
         else {
           link.ty = ry;
-          if (link.source.visible) {
+          if (link.source.state == "collapsed") {
             ry += link.dy + linkSpacing;
           }
         }
@@ -553,13 +553,13 @@ d3.sankey = function() {
       node.leftLinks.forEach(function(link) {
         if (link.direction < 0) {
           link.sy = ly;
-          if (link.target.visible) {
+          if (link.target.state == "collapsed") {
             ly += link.dy + linkSpacing;
           }
         }
         else {
           link.ty = ly;
-          if (link.source.visible) {
+          if (link.source.state == "collapsed") {
             ly += link.dy + linkSpacing;
           }
         }
@@ -591,7 +591,7 @@ d3.sankey = function() {
 
   function visible(linkCollection) {
     return linkCollection.filter(function(link) {
-      return link.source.visible && link.target.visible;
+      return link.source.state == "collapsed" && link.target.state == "collapsed";
     });
   }
 
