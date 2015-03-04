@@ -94,7 +94,6 @@ d3.sankey = function() {
   };
 
   sankey.expandAndCollapse = function() {
-    computeNodeValues();
     computeLeftAndRightLinks();
     computeNodeValues();
     computeLinkYPositions()
@@ -256,23 +255,25 @@ d3.sankey = function() {
   // Compute the number of spaces between the links
   // Compute the number of source links for later decrementing
   function computeNodeValues() {
-    var filteredLeftLinks, filteredRightLinks
+    var filteredLeftLinks, filteredRightLinks, filteredLinkSpaceCount, filteredValue
     nodes.forEach(function(node) {
-      node.value = Math.max(
-        d3.sum(node.leftLinks, value),
-        d3.sum(node.rightLinks, value)
-      );
       filteredLeftLinks = visible(node.leftLinks)
       filteredRightLinks = visible(node.rightLinks)
 
-      node.filteredValue = Math.max(
+      filteredLinkSpaceCount = Math.max(Math.max(filteredLeftLinks.length, filteredRightLinks.length) - 1, 0)
+
+      filteredValue = Math.max(
         d3.sum(filteredLeftLinks, value),
         d3.sum(filteredRightLinks, value)
       );
 
+      node.value = Math.max(
+        d3.sum(node.leftLinks, value),
+        d3.sum(node.rightLinks, value)
+      );
       node.netFlow = d3.sum(visible(node.targetLinks), value) - d3.sum(visible(node.sourceLinks), value);
-      node.linkSpaceCount = Math.max(Math.max(filteredLeftLinks.length, filteredRightLinks.length) - 1, 0)
-      node.dy = node.filteredValue * yScaleFactor + linkSpacing * node.linkSpaceCount;
+      node.dy = filteredValue * yScaleFactor + linkSpacing * filteredLinkSpaceCount;
+      node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0)
     });
   }
 
@@ -419,12 +420,13 @@ d3.sankey = function() {
 
 
     function initializeNodeYPosition() {
-      var ky = d3.min(nodesByXPosition, function(nodes) {
+      yScaleFactor = d3.min(nodesByXPosition, function(nodes) {
         var linkSpacesCount = d3.sum(nodes, function(node) {
           return node.linkSpaceCount
         })
-
-        var nodeValueSum = d3.sum(nodes, value);
+        var nodeValueSum = d3.sum(nodes, function(node) {
+          return node.value
+        });
         var discretionaryY = (size[1] - (nodes.length - 1) * nodeSpacing - linkSpacesCount * linkSpacing)
 
         return  discretionaryY / nodeValueSum;
@@ -432,26 +434,24 @@ d3.sankey = function() {
 
       // Fat links are those with lengths less than twice their heights
       // Fat links don't bend well
-      // Test that ky is not so big that it causes "fat" links; adjust ky accordingly
+      // Test that yScaleFactor is not so big that it causes "fat" links; adjust yScaleFactor accordingly
       links.forEach(function(link) {
         var linkLength = Math.abs(link.source.x - link.target.x)
-        var linkHeight = link.value * ky;
+        var linkHeight = link.value * yScaleFactor;
         if (linkLength / linkHeight < 2) {
-          ky = 0.5 * linkLength / link.value
+          yScaleFactor = 0.5 * linkLength / link.value
         }
       });
-
-      yScaleFactor = ky;
 
       nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
           node.y = i;
-          node.dy = node.value * ky + linkSpacing * node.linkSpaceCount;
+          node.dy = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
         });
       });
 
       links.forEach(function(link) {
-        link.dy = link.value * ky;
+        link.dy = link.value * yScaleFactor;
       });
     }
 
