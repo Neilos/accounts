@@ -13,8 +13,8 @@ $(document).ready(function() {
       positiveFlowColor = "#0066FF",
       negativeFlowColor = "#FF0000",
       linkColor = "#808080",
-      transitionDelay = 0
       transitionDuration = 300;
+      transitionDelay = 0,
 
   var units = "Widgets",
       formatNumber = function(d) {
