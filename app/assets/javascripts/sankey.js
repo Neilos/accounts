@@ -8,6 +8,8 @@ d3.sankey = function() {
       nodes = [],
       nodeMap = {},
       rootNodes = [],
+      parentNodes = [],
+      childlessNodes = [],
       links = [],
       xScaleFactor = 1,
       yScaleFactor = 1
@@ -76,7 +78,7 @@ d3.sankey = function() {
     initializeNodeMap();
     computeNodeHierarchy();
     computeNodeLinks();
-    computeParentLinks();
+    computeAncestorLinks();
     mergeLinks();
     computeConnectedNodes();
 
@@ -189,21 +191,43 @@ d3.sankey = function() {
     node.leftLinks = [];
     node.connectedNodes = [];
     node.children = [];
+    node.ancestors = [];
   }
 
   // generate hierarchical links between parent and child nodes
   function computeNodeHierarchy() {
     var parent;
+
     nodes.forEach(function(node) {
       parent = nodeMap[node.parent];
-      if (!!parent) {
+      if (parent) {
         node.parent = parent;
         parent.children.push(node)
       } else {
         node.parent = null;
         rootNodes.push(node)
       }
-    })
+    });
+
+    childlessNodes = nodes.filter(function(node) {
+      return !node.children.length
+    });
+
+    parentNodes = nodes.filter(function(node) {
+      return node.children.length
+    });
+
+    rootNodes.forEach(function(rNode) {
+      addAncestorsToChildren(rNode)
+    });
+  }
+
+  function addAncestorsToChildren(node) {
+    node.children.forEach(function(child) {
+      child.ancestors = child.ancestors.concat(this.ancestors.concat([this]));
+      addAncestorsToChildren(child);
+    }, node);
+
   }
 
   // Populate the sourceLinks and targetLinks for each node.
@@ -219,21 +243,70 @@ d3.sankey = function() {
     });
   }
 
-  // compute parent links
-  function computeParentLinks() {
-    var source, target, parentLink,
-        newLinks = [];
-    links.forEach(function(link) {
-      source = link.source.parent ? link.source.parent : link.source;
-      target = link.target.parent ? link.target.parent : link.target;
-      if ((source !== link.source || target !== link.target) && source !== target) {
-        parentLink = { source: source, target: target, value: link.value, id: source.id + "-" + target.id };
-        newLinks.push(parentLink)
-        source.sourceLinks.push(parentLink)
-        target.targetLinks.push(parentLink)
-      }
-    })
-    links = links.concat(newLinks);
+  // When child nodes are collapsed into their parents (or higher ancestors)
+  // the links between the child nodes should be represented by links
+  // between the containing ancestors. This function adds those extra links.
+  function computeAncestorLinks() {
+    childlessNodes.forEach(function(childlessNode) {
+      childlessNode.sourceLinks.forEach(function(sourceLink) {
+        var target = sourceLink.target
+        if (childlessNodes.indexOf(target) >=   0) {
+          var ancestorTargets = target.ancestors.filter(function(tAncestor) {
+            return childlessNode.ancestors.indexOf(tAncestor) < 0;
+          });
+          ancestorTargets.forEach(function(ancestorTarget){
+            var ancestorLink = { source: childlessNode,
+                                target: ancestorTarget,
+                                value: sourceLink.value,
+                                id: childlessNode.id + "-" + ancestorTarget.id };
+
+            childlessNode.sourceLinks.push(ancestorLink);
+            ancestorTarget.targetLinks.push(ancestorLink);
+            links.push(ancestorLink);
+          });
+        }
+      });
+
+      childlessNode.targetLinks.forEach(function(targetLink) {
+        var source = targetLink.source
+        if (childlessNodes.indexOf(source) >= 0) {
+          var ancestorSources = source.ancestors.filter(function(sAncestor) {
+            return childlessNode.ancestors.indexOf(sAncestor) < 0;
+          });
+          ancestorSources.forEach(function(ancestorSource){
+            var ancestorLink = { source: ancestorSource,
+                                target: childlessNode,
+                                value: targetLink.value,
+                                id: ancestorSource.id + "-" + childlessNode.id };
+            ancestorSource.sourceLinks.push(ancestorLink);
+            childlessNode.targetLinks.push(ancestorLink);
+            links.push(ancestorLink);
+          });
+        }
+      });
+    });
+
+    parentNodes.forEach(function(parentNode) {
+      parentNode.sourceLinks.forEach(function(sourceLink) {
+        var target = sourceLink.target
+        if (childlessNodes.indexOf(target) >= 0) {
+          var ancestorTargets = target.ancestors.filter(function(tAncestor) {
+            return parentNode.ancestors.indexOf(tAncestor) < 0;
+          });
+          ancestorTargets.forEach(function(ancestorTarget){
+            var ancestorLink = { source: parentNode,
+                                target: ancestorTarget,
+                                value: sourceLink.value,
+                                id: parentNode.id + "-" + ancestorTarget.id };
+
+            parentNode.sourceLinks.push(ancestorLink);
+            ancestorTarget.targetLinks.push(ancestorLink);
+            links.push(ancestorLink);
+          });
+        }
+      });
+    });
+
   }
 
   // To reduce clutter in the diagram merge links that are from the
