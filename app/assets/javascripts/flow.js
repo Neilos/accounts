@@ -190,8 +190,8 @@ $(document).ready(function() {
         .delay(transitionDelay)
         .duration(transitionDuration)
         .attr("transform", function(d) {
-          var endX = d._parent ? d._parent.x : d.x
-              endY = d._parent ? d._parent.y : d.y
+          var endX = d.parent ? d.parent.x : d.x
+              endY = d.parent ? d.parent.y : d.y
           return "translate(" + endX + "," + endY + ")";
         })
         .remove();
