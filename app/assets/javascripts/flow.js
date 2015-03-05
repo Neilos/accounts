@@ -189,7 +189,6 @@ $(document).ready(function() {
       .transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
-        .attr("opacity", nodeFadedOpacity)
         .attr("transform", function(d) {
           var endX = d._parent ? d._parent.x : d.x
               endY = d._parent ? d._parent.y : d.y
