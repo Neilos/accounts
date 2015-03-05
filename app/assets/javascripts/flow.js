@@ -282,7 +282,7 @@ $(document).ready(function() {
         );
       sankey.relayout();
       link.attr("d", path);
-      svg.selectAll(".node").select("rect").attr("height", function(d) { return d.dy })
+      svg.select(".node").selectAll("rect").attr("height", function(d) { return d.dy })
     }
 
     function showHideChildren(n, i) {
@@ -382,12 +382,12 @@ $(document).ready(function() {
   setInterval(function() {
     d3.json("sankey-formatted.json", function(error, graph) {
 
-      d3.selectAll('path.link')
+      d3.select('path.link')
         .interrupt() // interrupt current transition if any
         .transition() // preempt scheduled transitions if any
         .attr('pointer-events', 'none')
 
-      d3.selectAll('.node')
+      d3.select('.node')
         .interrupt() // interrupt current transition if any
         .transition() // preempt scheduled transitions if any
         .attr('pointer-events', 'none')
@@ -402,12 +402,12 @@ $(document).ready(function() {
         update();
 
         setTimeout(function() {
-          d3.selectAll('path.link')
+          d3.select('path.link')
             .interrupt() // interrupt current transition if any
             .transition() // preempt scheduled transitions if any
             .attr('pointer-events', 'all')
 
-          d3.selectAll('.node')
+          d3.select('.node')
             .interrupt() // interrupt current transition if any
             .transition() // preempt scheduled transitions if any
             .attr('pointer-events', 'all')
