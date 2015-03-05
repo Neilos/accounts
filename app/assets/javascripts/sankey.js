@@ -46,6 +46,10 @@ d3.sankey = function() {
     return nodes.filter(function(node) { return node.state == "collapsed"; });
   };
 
+  sankey.expandedNodes = function() {
+    return nodes.filter(function(node) { return node.state == "expanded"; });
+  };
+
   sankey.links = function(_) {
     if (!arguments.length) return links;
     links = _.filter(function(link) {

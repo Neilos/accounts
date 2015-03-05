@@ -1,9 +1,5 @@
 $(document).ready(function() {
 
-  var margin = {top: 50, right: 10, bottom: 10, left: 10},
-      width = 700 - margin.left - margin.right,
-      height = 600 - margin.top - margin.bottom;
-
   var nodeDefaultOpacity = .9,
       nodeFadedOpacity = .1,
       nodeHighlightedOpacity = .5,
@@ -13,8 +9,14 @@ $(document).ready(function() {
       positiveFlowColor = "#0066FF",
       negativeFlowColor = "#FF0000",
       linkColor = "#808080",
-      transitionDuration = 300;
       transitionDelay = 0,
+      transitionDuration = 300,
+      nodeWidth = 36,
+      collapserRadius = nodeWidth / 2;
+
+  var margin = {top: 2 * collapserRadius + 20, right: 10, bottom: 10, left: 10},
+      width = 700 - margin.left - margin.right,
+      height = 600 - margin.top - margin.bottom;
 
   var units = "Widgets",
       formatNumber = function(d) {
@@ -39,10 +41,11 @@ $(document).ready(function() {
   // so that one set can be drawn on top of the other
   svg.append("g").attr("id", "links")
   svg.append("g").attr("id", "nodes");
+  svg.append("g").attr("id", "collapsers");
 
   // Set the sankey diagram properties
   var sankey = d3.sankey()
-      .nodeWidth(36)
+      .nodeWidth(nodeWidth)
       .nodeSpacing(50)
       .linkSpacing(4)
       .arrowheadScaleFactor(0.5) // Specifies that 0.5 of the link's stroke width should be allowed for the marker at the end of the link.
@@ -270,6 +273,43 @@ $(document).ready(function() {
         .attr("x", 6 + sankey.nodeWidth())
         .attr("text-anchor", "start");
 
+
+    var collapser = svg.select("#collapsers").selectAll(".collapser")
+        .data(sankey.expandedNodes(), function(d) { return d.id })
+
+
+    collapser.exit().remove()
+
+    var collapserEnter = collapser.enter().append("g").attr("class", "collapser")
+    collapserEnter.append("title")
+    collapserEnter.append("circle")
+        .attr("r", collapserRadius)
+        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("stroke-width", "1px")
+
+    collapserEnter
+        .attr("transform", function(d) {
+          return "translate(" + (d.x + d.dx / 2) + "," + (d.y + collapserRadius) + ")";
+        })
+
+    collapserEnter.on("dblclick", showHideChildren);
+
+    collapser.select("circle")
+      .attr("r", collapserRadius)
+
+    collapser
+      .transition()
+        .delay(transitionDelay + transitionDuration)
+        .duration(transitionDuration)
+        .attr("transform", function(d, i) {
+          return "translate(" + collapserRadius + "," + (-collapserRadius * 2) + ")";
+        })
+
+    collapser.select("title")
+        .text(function(d) { return d.name + "\n(Double click to collapse)"; });
+
+
     // the function for moving the nodes
     function dragmove(d) {
       d3.select(this).attr("transform",
@@ -303,6 +343,7 @@ $(document).ready(function() {
       sankey.expandAndCollapse()
 
       update();
+      restoreLinksAndNodes()
     }
 
     function restoreLinksAndNodes() {
@@ -316,16 +357,17 @@ $(document).ready(function() {
             .duration(transitionDuration)
             .style("opacity", linkDefaultOpacity);
 
-        node.selectAll("rect")
-          .style("fill", function(d) {
-            return d.color = color(d.name.replace(/ .*/, ""))
-          })
-          .style("stroke", function(d) {
-            return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3);
-          })
-          .style("fill-opacity", nodeDefaultOpacity)
-
         node
+          .selectAll("rect")
+            .style("fill", function(d) {
+              return d.color = color(d.name.replace(/ .*/, ""))
+            })
+            .style("stroke", function(d) {
+              return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3);
+            })
+            .style("fill-opacity", nodeDefaultOpacity)
+
+        node.filter(function(n) { return n.state == "collapsed" })
           .transition()
             .delay(transitionDelay)
             .duration(transitionDuration)
