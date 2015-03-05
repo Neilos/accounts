@@ -178,9 +178,9 @@ $(document).ready(function() {
         .duration(transitionDuration)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       .select("rect")
-        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+        .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
         .style("fill-opacity", nodeDefaultOpacity)
-        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-opacity", "1")
         .style("stroke-width", "1px")
       .transition()
@@ -220,8 +220,8 @@ $(document).ready(function() {
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
-        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-width", "1px")
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth())
@@ -284,8 +284,8 @@ $(document).ready(function() {
     collapserEnter.append("title")
     collapserEnter.append("circle")
         .attr("r", collapserRadius)
-        .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
+        .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-width", "1px")
 
     collapserEnter
@@ -368,10 +368,10 @@ $(document).ready(function() {
         node
           .selectAll("rect")
             .style("fill", function(d) {
-              return d.color = color(d.name.replace(/ .*/, ""))
+              return d.color = color(d.type.replace(/ .*/, ""))
             })
             .style("stroke", function(d) {
-              return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3);
+              return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3);
             })
             .style("fill-opacity", nodeDefaultOpacity)
 
