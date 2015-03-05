@@ -206,26 +206,21 @@ $(document).ready(function() {
             startY = d._parent ? d._parent.y : d.y
         return "translate(" + startX + "," + startY + ")";
       })
+      .style("opacity", 1e-6)
       .transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
+        .style("opacity", nodeDefaultOpacity)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
         .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-        .style("fill-opacity", nodeDefaultOpacity)
         .style("stroke", function(d) { return d3.rgb(color(d.name.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-width", "1px")
-        .style("stroke-opacity", "1")
         .attr("height", function(d) { return d.dy; })
         .attr("width", sankey.nodeWidth())
-      .transition()
-        .delay(transitionDelay)
-        .duration(transitionDuration)
-        .style("opacity", nodeDefaultOpacity)
-
 
     // ENTER + UPDATE
 
