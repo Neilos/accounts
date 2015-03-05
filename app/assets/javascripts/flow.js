@@ -13,6 +13,7 @@ $(document).ready(function() {
       transitionDuration = 300,
       nodeWidth = 36,
       collapserRadius = nodeWidth / 2;
+      collapserSpacing = 2;
 
   var margin = {top: 2 * collapserRadius + 20, right: 10, bottom: 10, left: 10},
       width = 700 - margin.left - margin.right,
@@ -278,8 +279,6 @@ $(document).ready(function() {
         .data(sankey.expandedNodes(), function(d) { return d.id })
 
 
-    collapser.exit().remove()
-
     var collapserEnter = collapser.enter().append("g").attr("class", "collapser")
     collapserEnter.append("title")
     collapserEnter.append("circle")
@@ -289,26 +288,30 @@ $(document).ready(function() {
         .style("stroke-width", "1px")
 
     collapserEnter
-        .attr("transform", function(d) {
-          return "translate(" + (d.x + d.dx / 2) + "," + (d.y + collapserRadius) + ")";
-        })
+      .attr("transform", function(d) {
+        return "translate(" + (d.x + d.dx / 2) + "," + (d.y + collapserRadius) + ")";
+      })
 
     collapserEnter.on("dblclick", showHideChildren);
 
     collapser.select("circle")
       .attr("r", collapserRadius)
 
-    collapser
-      .transition()
+    collapser.transition()
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
         .attr("transform", function(d, i) {
-          return "translate(" + collapserRadius + "," + (-collapserRadius * 2) + ")";
+          return "translate(" + (collapserRadius + i * 2 * (collapserRadius + collapserSpacing)) + "," + (-collapserRadius * 2) + ")";
         })
 
     collapser.select("title")
         .text(function(d) { return d.name + "\n(Double click to collapse)"; });
 
+    collapser.exit()
+      .transition()
+        .delay(transitionDelay + transitionDuration)
+        .duration(transitionDuration)
+        .remove()
 
     // the function for moving the nodes
     function dragmove(d) {
