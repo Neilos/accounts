@@ -117,11 +117,11 @@ $(document).ready(function() {
 
     linkEnter.on('mouseenter', function(d){
         d3.select(this)
-        .style("stroke", linkColor)
-        .transition()
-          .delay(transitionDelay)
-          .duration(transitionDuration)
-          .style("opacity", linkHighlightedOpacity)
+          .style("stroke", linkColor)
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", linkHighlightedOpacity)
       })
 
     linkEnter.on('mouseleave', function(d) {
