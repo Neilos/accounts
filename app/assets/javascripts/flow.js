@@ -12,10 +12,11 @@ $(document).ready(function() {
       transitionDelay = 0,
       transitionDuration = 300,
       nodeWidth = 36,
-      collapserRadius = nodeWidth / 2;
-      collapserSpacing = 2;
+      collapserRadius = nodeWidth / 2,
+      collapserSpacing = 2,
+      outerMargin = 10;
 
-  var margin = {top: 2 * collapserRadius + 20, right: 10, bottom: 10, left: 10},
+  var margin = {top: 2 * (collapserRadius + outerMargin), right: outerMargin, bottom: outerMargin, left: outerMargin},
       width = 700 - margin.left - margin.right,
       height = 600 - margin.top - margin.bottom;
 
@@ -301,7 +302,11 @@ $(document).ready(function() {
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
         .attr("transform", function(d, i) {
-          return "translate(" + (collapserRadius + i * 2 * (collapserRadius + collapserSpacing)) + "," + (-collapserRadius * 2) + ")";
+          return "translate("
+            + (collapserRadius + i * 2 * (collapserRadius + collapserSpacing))
+            + ","
+            + (-collapserRadius - outerMargin)
+            + ")";
         })
 
     collapser.select("title")
