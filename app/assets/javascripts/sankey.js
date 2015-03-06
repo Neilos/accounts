@@ -521,7 +521,7 @@ d3.sankey = function() {
       nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
           node.y = i;
-          node.dy = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
+          node.heightAllowance = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
         });
       });
 
@@ -574,7 +574,7 @@ d3.sankey = function() {
           node = nodes[i];
           dy = y0 - node.y;
           if (dy > 0) node.y += dy;
-          y0 = node.y + node.dy + nodeSpacing;
+          y0 = node.y + node.heightAllowance + nodeSpacing;
         }
 
         // If the bottommost node goes outside the bounds, push it back up.
@@ -585,7 +585,7 @@ d3.sankey = function() {
           // Push any overlapping nodes back up.
           for (i = n - 2; i >= 0; --i) {
             node = nodes[i];
-            dy = node.y + node.dy + nodeSpacing - y0;
+            dy = node.y + node.heightAllowance + nodeSpacing - y0;
             if (dy > 0) node.y -= dy;
             y0 = node.y;
           }
