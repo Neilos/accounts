@@ -7,9 +7,8 @@ d3.sankey = function() {
       size = [1, 1],
       nodes = [],
       nodeMap = {},
-      rootNodes = [],
       parentNodes = [],
-      childlessNodes = [],
+      leafNodes = [],
       links = [],
       xScaleFactor = 1,
       yScaleFactor = 1
@@ -124,17 +123,17 @@ d3.sankey = function() {
       }
     }
 
-    function leftToRightLink(d) {
-      var arrowLength = d.dy * arrowheadScaleFactor;
-      var straightSectionLength = (3 * d.dy / 4) - arrowLength;
-      var x0 = d.source.x + d.source.dx
-          x1 = x0 + arrowLength,
-          x4 = d.target.x - straightSectionLength - arrowLength,
+    function leftToRightLink(link) {
+      var arrowHeadLength = link.thickness * arrowheadScaleFactor;
+      var straightSectionLength = (3 * link.thickness / 4) - arrowHeadLength;
+      var x0 = link.source.x + link.source.width
+          x1 = x0 + arrowHeadLength,
+          x4 = link.target.x - straightSectionLength - arrowHeadLength,
           xi = d3.interpolateNumber(x0, x4),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
-          y0 = d.source.y + d.sy + d.dy / 2,
-          y1 = d.target.y + d.ty + d.dy / 2;
+          y0 = link.source.y + link.sourceY + link.thickness / 2,
+          y1 = link.target.y + link.targetY + link.thickness / 2;
       return "M" + x0 + "," + y0
            + "L" + x1 + "," + y0
            + "C" + x2 + "," + y0
@@ -143,17 +142,17 @@ d3.sankey = function() {
            + "L" + (x4 + straightSectionLength) + "," + y1
     }
 
-    function rightToLeftLink(d) {
-      var arrowLength = d.dy * arrowheadScaleFactor;
-      var straightSectionLength = d.dy / 4;
-      var x0 = d.source.x
-          x1 = x0 - arrowLength,
-          x4 = d.target.x + d.target.dx + straightSectionLength + arrowLength,
+    function rightToLeftLink(link) {
+      var arrowHeadLength = link.thickness * arrowheadScaleFactor;
+      var straightSectionLength = link.thickness / 4;
+      var x0 = link.source.x
+          x1 = x0 - arrowHeadLength,
+          x4 = link.target.x + link.target.width + straightSectionLength + arrowHeadLength,
           xi = d3.interpolateNumber(x0, x4),
           x2 = xi(curvature),
           x3 = xi(1 - curvature),
-          y0 = d.source.y + d.sy + d.dy / 2,
-          y1 = d.target.y + d.ty + d.dy / 2;
+          y0 = link.source.y + link.sourceY + link.thickness / 2,
+          y1 = link.target.y + link.targetY + link.thickness / 2;
       return "M" + x0 + "," + y0
            + "L" + x0 + "," + y0
            + "C" + x2 + "," + y0
@@ -196,7 +195,8 @@ d3.sankey = function() {
 
   // generate hierarchical links between parent and child nodes
   function computeNodeHierarchy() {
-    var parent;
+    var parent,
+        rootNodes = [];
 
     nodes.forEach(function(node) {
       parent = nodeMap[node.parent];
@@ -209,7 +209,7 @@ d3.sankey = function() {
       }
     });
 
-    childlessNodes = nodes.filter(function(node) {
+    leafNodes = nodes.filter(function(node) {
       return !node.children.length
     });
 
@@ -247,49 +247,53 @@ d3.sankey = function() {
   // the links between the child nodes should be represented by links
   // between the containing ancestors. This function adds those extra links.
   function computeAncestorLinks() {
-    childlessNodes.forEach(function(childlessNode) {
-      childlessNode.sourceLinks.forEach(function(sourceLink) {
+    // Leaf nodes are never parents of other nodes
+    // Duplicate source and target links between a leaf node and another leaf node
+    // and add to the leaf nodes' parents
+    leafNodes.forEach(function(leafNode) {
+      leafNode.sourceLinks.forEach(function(sourceLink) {
         var target = sourceLink.target
-        if (childlessNodes.indexOf(target) >=   0) {
+        if (leafNodes.indexOf(target) >= 0) {
           var ancestorTargets = target.ancestors.filter(function(tAncestor) {
-            return childlessNode.ancestors.indexOf(tAncestor) < 0;
+            return leafNode.ancestors.indexOf(tAncestor) < 0;
           });
           ancestorTargets.forEach(function(ancestorTarget){
-            var ancestorLink = { source: childlessNode,
+            var ancestorLink = { source: leafNode,
                                 target: ancestorTarget,
                                 value: sourceLink.value,
-                                id: childlessNode.id + "-" + ancestorTarget.id };
+                                id: leafNode.id + "-" + ancestorTarget.id };
 
-            childlessNode.sourceLinks.push(ancestorLink);
+            leafNode.sourceLinks.push(ancestorLink);
             ancestorTarget.targetLinks.push(ancestorLink);
             links.push(ancestorLink);
           });
         }
       });
 
-      childlessNode.targetLinks.forEach(function(targetLink) {
+      leafNode.targetLinks.forEach(function(targetLink) {
         var source = targetLink.source
-        if (childlessNodes.indexOf(source) >= 0) {
+        if (leafNodes.indexOf(source) >= 0) {
           var ancestorSources = source.ancestors.filter(function(sAncestor) {
-            return childlessNode.ancestors.indexOf(sAncestor) < 0;
+            return leafNode.ancestors.indexOf(sAncestor) < 0;
           });
           ancestorSources.forEach(function(ancestorSource){
             var ancestorLink = { source: ancestorSource,
-                                target: childlessNode,
+                                target: leafNode,
                                 value: targetLink.value,
-                                id: ancestorSource.id + "-" + childlessNode.id };
+                                id: ancestorSource.id + "-" + leafNode.id };
             ancestorSource.sourceLinks.push(ancestorLink);
-            childlessNode.targetLinks.push(ancestorLink);
+            leafNode.targetLinks.push(ancestorLink);
             links.push(ancestorLink);
           });
         }
       });
     });
 
+    // Add links between parents (for when both parents are in collapsed state)
     parentNodes.forEach(function(parentNode) {
       parentNode.sourceLinks.forEach(function(sourceLink) {
         var target = sourceLink.target
-        if (childlessNodes.indexOf(target) >= 0) {
+        if (leafNodes.indexOf(target) >= 0) {
           var ancestorTargets = target.ancestors.filter(function(tAncestor) {
             return parentNode.ancestors.indexOf(tAncestor) < 0;
           });
@@ -306,7 +310,6 @@ d3.sankey = function() {
         }
       });
     });
-
   }
 
   // To reduce clutter in the diagram merge links that are from the
@@ -314,9 +317,9 @@ d3.sankey = function() {
   // with a value equal to the sum of the values of the merged links
   function mergeLinks() {
     var linkGroups = d3.nest()
-      .key(function(d) { return d.source.id + "->" + d.target.id; })
+      .key(function(link) { return link.source.id + "->" + link.target.id; })
       .entries(links)
-      .map(function(d) { return d.values; });
+      .map(function(object) { return object.values; });
 
     links = linkGroups.map(function(linkGroup) {
       return linkGroup.reduce(function(previousLink, currentLink, index, array) {
@@ -341,7 +344,7 @@ d3.sankey = function() {
         d3.sum(node.rightLinks, value)
       );
       node.netFlow = d3.sum(visible(node.targetLinks), value) - d3.sum(visible(node.sourceLinks), value);
-      node.dy = Math.max(nodeHeight(visible(node.leftLinks)), nodeHeight(visible(node.rightLinks)));
+      node.height = Math.max(nodeHeight(visible(node.leftLinks)), nodeHeight(visible(node.rightLinks)));
       node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0);
     });
   }
@@ -375,7 +378,7 @@ d3.sankey = function() {
       nextNodes = [];
       remainingNodes.forEach(function(node) {
         node.x = x;
-        node.dx = nodeWidth;
+        node.width = nodeWidth;
         node.sourceLinks.forEach(function(link) {
           if (nextNodes.indexOf(link.target) < 0 && link.target.x == node.x) {
             nextNodes.push(link.target);
@@ -391,12 +394,7 @@ d3.sankey = function() {
     }
 
     compressInXDirection()
-
-    var minX = d3.min(nodes, function(d) { return d.x; });
-    var maxX = d3.max(nodes, function(d) { return d.x; }) - minX;
-
-    xScaleFactor = (size[0] - nodeWidth) / maxX
-    scaleNodeXPositions(xScaleFactor);
+    scaleNodeXPositions();
   }
 
   function sourceAndTargetNodesWithSameX() {
@@ -435,22 +433,25 @@ d3.sankey = function() {
   function moveSourcesRight() {
     nodes.forEach(function(node) {
       if (!node.targetLinks.length) {
-        node.x = d3.min(node.sourceLinks, function(d) { return d.target.x; }) - 1;
+        node.x = d3.min(node.sourceLinks, function(link) { return link.target.x; }) - 1;
       }
     });
   }
 
   function compressInXDirection() {
-    var connectedNodesXPositions,
-        nodesByXPosition = d3.nest()
-          .key(function(d) { return d.x; })
+    var nodesByXPosition = d3.nest()
+          .key(function(node) { return node.x; })
           .sortKeys(d3.ascending)
           .entries(nodes)
-          .map(function(d) { return d.values; });
+          .map(function(object) { return object.values; });
+
+    var connectedNodesXPositions;
 
     nodesByXPosition.forEach(function(xnodes) {
       xnodes.forEach(function(node) {
-        connectedNodesXPositions = node.connectedNodes.map(function(d) { return d.x })
+        connectedNodesXPositions = node.connectedNodes.map(function(connectedNode) {
+          return connectedNode.x
+        });
         // keep decrementing the x value of the node
         // unless it would have the same x value as one of its source or target nodes
         // or node.x is already 0
@@ -461,28 +462,34 @@ d3.sankey = function() {
     });
   }
 
-  function scaleNodeXPositions(kx) {
+  function scaleNodeXPositions() {
+    var minX = d3.min(nodes, function(node) { return node.x; });
+    var maxX = d3.max(nodes, function(node) { return node.x; }) - minX;
+    xScaleFactor = (size[0] - nodeWidth) / maxX
+
     nodes.forEach(function(node) {
-      node.x *= kx;
+      node.x *= xScaleFactor;
     });
   }
 
-  function adjustTop(minY) {
+  function adjustTop(adjustment) {
     nodes.forEach(function(node) {
-      node.y -= minY
+      node.y -= adjustment;
     });
   }
 
   function computeNodeYPositions(iterations) {
     var nodesByXPosition = d3.nest()
-        .key(function(d) { return d.x; })
+        .key(function(node) { return node.x; })
         .sortKeys(d3.ascending)
         .entries(nodes)
-        .map(function(d) { return d.values; });
+        .map(function(object) { return object.values; });
 
-    //
+    calculateYScaleFactor();
     initializeNodeYPosition();
+    calculateLinkThickness();
     resolveCollisions();
+
     for (var alpha = 1; iterations > 0; --iterations) {
       relaxRightToLeft(alpha *= .99);
       resolveCollisions();
@@ -490,11 +497,10 @@ d3.sankey = function() {
       resolveCollisions();
     }
 
-    var minY = d3.min(nodes, function(d) { return d.y; });
+    var minY = d3.min(nodes, function(node) { return node.y; });
     adjustTop(minY);
 
-
-    function initializeNodeYPosition() {
+    function calculateYScaleFactor() {
       yScaleFactor = d3.min(nodesByXPosition, function(nodes) {
         var linkSpacesCount = d3.sum(nodes, function(node) {
           return node.linkSpaceCount
@@ -517,16 +523,20 @@ d3.sankey = function() {
           yScaleFactor = 0.35 * linkLength / link.value
         }
       });
+    }
 
+    function initializeNodeYPosition() {
       nodesByXPosition.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
           node.y = i;
           node.heightAllowance = node.value * yScaleFactor + linkSpacing * node.linkSpaceCount;
         });
       });
+    }
 
+    function calculateLinkThickness() {
       links.forEach(function(link) {
-        link.dy = link.value * yScaleFactor;
+        link.thickness = link.value * yScaleFactor;
       });
     }
 
@@ -605,38 +615,36 @@ d3.sankey = function() {
     });
 
     nodes.forEach(function(node) {
-      var ry = 0, ly = 0;
+      var rightY = 0, leftY = 0;
 
       node.rightLinks.forEach(function(link) {
         if (link.direction > 0) {
-          link.sy = ry;
+          link.sourceY = rightY;
           if (link.target.state == "collapsed") {
-            ry += link.dy + linkSpacing;
+            rightY += link.thickness + linkSpacing;
           }
         }
         else {
-          link.ty = ry;
+          link.targetY = rightY;
           if (link.source.state == "collapsed") {
-            ry += link.dy + linkSpacing;
+            rightY += link.thickness + linkSpacing;
           }
         }
-
       });
 
       node.leftLinks.forEach(function(link) {
         if (link.direction < 0) {
-          link.sy = ly;
+          link.sourceY = leftY;
           if (link.target.state == "collapsed") {
-            ly += link.dy + linkSpacing;
+            leftY += link.thickness + linkSpacing;
           }
         }
         else {
-          link.ty = ly;
+          link.targetY = leftY;
           if (link.source.state == "collapsed") {
-            ly += link.dy + linkSpacing;
+            leftY += link.thickness + linkSpacing;
           }
         }
-
       });
 
     });
@@ -655,7 +663,7 @@ d3.sankey = function() {
   }
 
   function center(node) {
-    return node.y + node.dy / 2;
+    return node.y + node.height / 2;
   }
 
   function value(link) {

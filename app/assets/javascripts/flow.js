@@ -139,7 +139,7 @@ $(document).ready(function() {
       });
 
     // ENTER + UPDATE
-    linkEnter.sort(function(a, b) { return b.dy - a.dy; })
+    linkEnter.sort(function(a, b) { return b.thickness - a.thickness; })
         .classed("leftToRight",function(d) {
           return d.direction > 0;
         })
@@ -152,7 +152,7 @@ $(document).ready(function() {
         .style("stroke", linkColor)
         .style("opacity", 0)
         .attr("d", path)
-        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+        .style("stroke-width", function(d) { return Math.max(1, d.thickness); })
       .transition()
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
@@ -186,7 +186,7 @@ $(document).ready(function() {
       .transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
-        .attr("height", function(d) { return d.dy; })
+        .attr("height", function(d) { return d.height; })
         .attr("width", sankey.nodeWidth());
 
     // EXIT
@@ -223,7 +223,7 @@ $(document).ready(function() {
         .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
         .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-width", "1px")
-        .attr("height", function(d) { return d.dy; })
+        .attr("height", function(d) { return d.height; })
         .attr("width", sankey.nodeWidth())
 
     // ENTER + UPDATE
@@ -266,7 +266,7 @@ $(document).ready(function() {
     node.filter(function(d) { return d.value !== 0; })
       .select("text")
         .attr("x", -6)
-        .attr("y", function(d) { return d.dy / 2; })
+        .attr("y", function(d) { return d.height / 2; })
         .attr("dy", ".35em")
         .attr("text-anchor", "end")
         .attr("transform", null)
@@ -290,7 +290,7 @@ $(document).ready(function() {
 
     collapserEnter
       .attr("transform", function(d) {
-        return "translate(" + (d.x + d.dx / 2) + "," + (d.y + collapserRadius) + ")";
+        return "translate(" + (d.x + d.width / 2) + "," + (d.y + collapserRadius) + ")";
       })
 
     collapserEnter.on("dblclick", showHideChildren);
@@ -318,15 +318,15 @@ $(document).ready(function() {
     function dragmove(d) {
       d3.select(this).attr("transform",
         "translate(" + (
-              d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))
+              d.x = Math.max(0, Math.min(width - d.width, d3.event.x))
           )
           + "," + (
-              d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+              d.y = Math.max(0, Math.min(height - d.height, d3.event.y))
           ) + ")"
         );
       sankey.relayout();
       link.attr("d", path);
-      svg.select(".node").selectAll("rect").attr("height", function(d) { return d.dy })
+      svg.select(".node").selectAll("rect").attr("height", function(d) { return d.height })
     }
 
     function showHideChildren(n, i) {
