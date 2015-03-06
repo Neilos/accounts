@@ -13,7 +13,7 @@ $(document).ready(function() {
       negativeFlowColor = "#D63028",
       linkColor = "#b3b3b3",
       transitionDelay = 0,
-      transitionDuration = 300,
+      transitionDuration = 400,
       nodeWidth = 36,
       collapserRadius = nodeWidth / 2,
       collapserSpacing = 2,
@@ -168,7 +168,7 @@ $(document).ready(function() {
           .style("stroke", linkColor)
           .transition()
             .delay(transitionDelay)
-            .duration(transitionDuration)
+            .duration(transitionDuration / 2)
             .style("opacity", linkHighlightedOpacity)
       })
 
@@ -179,7 +179,7 @@ $(document).ready(function() {
           .style("stroke", linkColor)
           .transition()
             .delay(transitionDelay)
-            .duration(transitionDuration)
+            .duration(transitionDuration / 2)
             .style("opacity", linkDefaultOpacity)
       });
 
