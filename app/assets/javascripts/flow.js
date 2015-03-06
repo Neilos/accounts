@@ -312,11 +312,7 @@ $(document).ready(function() {
     collapser.select("title")
         .text(function(d) { return d.name + "\n(Double click to collapse)"; });
 
-    collapser.exit()
-      .transition()
-        .delay(transitionDelay + transitionDuration)
-        .duration(transitionDuration)
-        .remove()
+    collapser.exit().remove()
 
     // the function for moving the nodes
     function dragmove(d) {
