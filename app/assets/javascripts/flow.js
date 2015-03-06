@@ -16,11 +16,15 @@ $(document).ready(function() {
       collapserSpacing = 2,
       outerMargin = 10;
 
-  var margin = {top: 2 * (collapserRadius + outerMargin), right: outerMargin, bottom: outerMargin, left: outerMargin},
+  var margin = {
+        top: 2 * (collapserRadius + outerMargin),
+        right: outerMargin,
+        bottom: outerMargin,
+        left: outerMargin
+      },
       width = 700 - margin.left - margin.right,
       height = 600 - margin.top - margin.bottom;
-
-  var units = "Widgets",
+      units = "Widgets",
       formatNumber = function(d) {
         var numberFormat = d3.format(",.0f"); // zero decimal places
         return numberFormat(d) + " " + units;
@@ -315,13 +319,13 @@ $(document).ready(function() {
     collapser.exit().remove()
 
     // the function for moving the nodes
-    function dragmove(d) {
+    function dragmove(node) {
       d3.select(this).attr("transform",
         "translate(" + (
-              d.x = Math.max(0, Math.min(width - d.width, d3.event.x))
+              node.x = Math.max(0, Math.min(width - node.width, d3.event.x))
           )
           + "," + (
-              d.y = Math.max(0, Math.min(height - d.height, d3.event.y))
+              node.y = Math.max(0, Math.min(height - node.height, d3.event.y))
           ) + ")"
         );
       sankey.relayout();
@@ -329,8 +333,8 @@ $(document).ready(function() {
       svg.select(".node").selectAll("rect").attr("height", function(d) { return d.height })
     }
 
-    function showHideChildren(n, i) {
-      n.children.forEach(function(child) {
+    function showHideChildren(node, i) {
+      node.children.forEach(function(child) {
         if (child.parent) {
           child._parent = child.parent;
           child.parent = null;
@@ -342,7 +346,7 @@ $(document).ready(function() {
           child.state = "contained"
           this.state = "collapsed";
         }
-      }, n);
+      }, node);
 
       sankey.relayout()
       update();
