@@ -6,9 +6,11 @@ $(document).ready(function() {
       linkDefaultOpacity = .5,
       linkFadedOpacity = .05,
       linkHighlightedOpacity = .9,
-      positiveFlowColor = "#0066FF",
-      negativeFlowColor = "#FF0000",
-      linkColor = "#808080",
+      types = ["Asset", "Expense", "Revenue", "Equity", "Liability"],
+      typeColors = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494"],
+      positiveFlowColor = "#2E86D1",
+      negativeFlowColor = "#D63028",
+      linkColor = "#b3b3b3",
       transitionDelay = 0,
       transitionDuration = 300,
       nodeWidth = 36,
@@ -33,7 +35,9 @@ $(document).ready(function() {
         var flowFormat = d3.format("+,.0f"); // zero decimal places with sign
         return flowFormat(d) + " " + units;
       },
-      color = d3.scale.category20();
+      colorScale = d3.scale.ordinal()
+        .domain(types)
+        .range(typeColors)
 
   // append the svg canvas to the page
   var svg = d3.select("#chart").append("svg")
@@ -182,9 +186,9 @@ $(document).ready(function() {
         .duration(transitionDuration)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       .select("rect")
-        .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
+        .style("fill", function(d) { return d.color = colorScale(d.type.replace(/ .*/, "")); })
         .style("fill-opacity", nodeDefaultOpacity)
-        .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
+        .style("stroke", function(d) { return d3.rgb(colorScale(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-opacity", "1")
         .style("stroke-width", "1px")
       .transition()
@@ -224,8 +228,8 @@ $(document).ready(function() {
     nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
-        .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
-        .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
+        .style("fill", function(d) { return d.color = colorScale(d.type.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(colorScale(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-width", "1px")
         .attr("height", function(d) { return d.height; })
         .attr("width", sankey.nodeWidth())
@@ -288,8 +292,8 @@ $(document).ready(function() {
     collapserEnter.append("title")
     collapserEnter.append("circle")
         .attr("r", collapserRadius)
-        .style("fill", function(d) { return d.color = color(d.type.replace(/ .*/, "")); })
-        .style("stroke", function(d) { return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3); })
+        .style("fill", function(d) { return d.color = colorScale(d.type.replace(/ .*/, "")); })
+        .style("stroke", function(d) { return d3.rgb(colorScale(d.type.replace(/ .*/, ""))).darker(0.3); })
         .style("stroke-width", "1px")
 
     collapserEnter
@@ -368,10 +372,10 @@ $(document).ready(function() {
         node
           .selectAll("rect")
             .style("fill", function(d) {
-              return d.color = color(d.type.replace(/ .*/, ""))
+              return d.color = colorScale(d.type.replace(/ .*/, ""))
             })
             .style("stroke", function(d) {
-              return d3.rgb(color(d.type.replace(/ .*/, ""))).darker(0.3);
+              return d3.rgb(colorScale(d.type.replace(/ .*/, ""))).darker(0.3);
             })
             .style("fill-opacity", nodeDefaultOpacity)
 
