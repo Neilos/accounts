@@ -10,7 +10,7 @@ $(document).ready(function() {
       typeColors = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494"],
       positiveFlowColor = "#2E86D1",
       negativeFlowColor = "#D63028",
-      linkColor = "#b3b3b3",
+      linkColor = "#a3a3a3",
       transitionDelay = 0,
       transitionDuration = 300,
       nodeWidth = 36,
@@ -35,6 +35,24 @@ $(document).ready(function() {
         var flowFormat = d3.format("+,.0f"); // zero decimal places with sign
         return flowFormat(d) + " " + units;
       },
+      hideTooltip = function() {
+        var tooltip = d3.select("#tooltip")
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", 0);
+        return tooltip;
+      },
+      showTooltip = function() {
+        var tooltip = d3.select("#tooltip")
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY + 15 + "px")
+          .transition()
+            .delay(transitionDelay)
+            .duration(transitionDuration)
+            .style("opacity", 1)
+        return tooltip;
+      }
       colorScale = d3.scale.ordinal()
         .domain(types)
         .range(typeColors)
@@ -52,6 +70,12 @@ $(document).ready(function() {
   svg.append("g").attr("id", "links")
   svg.append("g").attr("id", "nodes");
   svg.append("g").attr("id", "collapsers");
+
+  var tooltip = d3.select("#chart").append("div")
+    .attr("id", "tooltip")
+    .style("opacity", 0)
+      .append("p")
+        .attr("class", "value")
 
   // Set the sankey diagram properties
   var sankey = d3.sankey()
@@ -126,9 +150,16 @@ $(document).ready(function() {
         .attr("class", "link")
         .style("fill", "none")
 
-    linkEnter.append("title")
-
     linkEnter.on('mouseenter', function(d){
+        showTooltip().select(".value")
+          .text(function() {
+            if (d.direction > 0) {
+              return d.source.name + " → " + d.target.name + "\n" + formatNumber(d.value);
+            } else {
+              return d.target.name + " ← " + d.source.name + "\n" + formatNumber(d.value);
+            }
+          });
+
         d3.select(this)
           .style("stroke", linkColor)
           .transition()
@@ -138,6 +169,8 @@ $(document).ready(function() {
       })
 
     linkEnter.on('mouseleave', function(d) {
+        hideTooltip();
+
         d3.select(this)
           .style("stroke", linkColor)
           .transition()
@@ -165,16 +198,6 @@ $(document).ready(function() {
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
         .style("opacity", linkDefaultOpacity)
-
-    // set the titles
-    link.select("title")
-      .text(function(d) {
-        if (d.direction > 0) {
-          return d.source.name + " → " + d.target.name + "\n" + formatNumber(d.value);
-        } else {
-          return d.target.name + " ← " + d.source.name + "\n" + formatNumber(d.value);
-        }
-      });
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
@@ -225,7 +248,6 @@ $(document).ready(function() {
         .style("opacity", nodeDefaultOpacity)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
-    nodeEnter.append("title")
     nodeEnter.append("text")
     nodeEnter.append("rect")
         .style("fill", function(d) { return d.color = colorScale(d.type.replace(/ .*/, "")); })
@@ -249,20 +271,21 @@ $(document).ready(function() {
           return d3.rgb(d.color).darker(0.3);
         })
         .style("fill-opacity", nodeHighlightedOpacity);
+
+      showTooltip().select(".value")
+          .text(function() {
+            var additionalInstructions = g.children.length ? "\n(Double click to expand)" : ""
+            return g.name + "\nNet flow: " + formatFlow(g.netFlow) + additionalInstructions;
+          });
     })
 
     node.on("mouseleave", function(g, i) {
       restoreLinksAndNodes();
+      hideTooltip();
     });
 
     node.filter(function (d) { return d.children.length; })
       .on("dblclick", showHideChildren)
-
-    node.select("title")
-        .text(function(d) {
-          var additionalInstructions = d.children.length ? "\n(Double click to expand)" : ""
-          return d.name + "\nNet flow: " + formatFlow(d.netFlow) + additionalInstructions;
-        });
 
     // allow nodes to be dragged to new positions
     node.call(d3.behavior.drag()
@@ -289,7 +312,7 @@ $(document).ready(function() {
 
 
     var collapserEnter = collapser.enter().append("g").attr("class", "collapser")
-    collapserEnter.append("title")
+
     collapserEnter.append("circle")
         .attr("r", collapserRadius)
         .style("fill", function(d) { return d.color = colorScale(d.type.replace(/ .*/, "")); })
@@ -317,8 +340,12 @@ $(document).ready(function() {
             + ")";
         })
 
-    collapser.select("title")
-        .text(function(d) { return d.name + "\n(Double click to collapse)"; });
+    collapser.on("mouseenter", function(d) {
+      showTooltip().select(".value")
+        .text(function() { return d.name + "\n(Double click to collapse)"; });
+    })
+
+    collapser.on("mouseleave", function(d) { hideTooltip(); });
 
     collapser.exit().remove()
 
@@ -338,6 +365,7 @@ $(document).ready(function() {
     }
 
     function showHideChildren(node, i) {
+      hideTooltip()
       node.children.forEach(function(child) {
         if (child.parent) {
           child._parent = child.parent;
