@@ -334,26 +334,22 @@ d3.sankey = function() {
   // Compute the number of spaces between the links
   // Compute the number of source links for later decrementing
   function computeNodeValues() {
-    var filteredLeftLinks, filteredRightLinks, filteredLinkSpaceCount, filteredValue
+    var filteredLeftLinks, filteredRightLinks
     nodes.forEach(function(node) {
-      filteredLeftLinks = visible(node.leftLinks)
-      filteredRightLinks = visible(node.rightLinks)
-
-      filteredLinkSpaceCount = Math.max(Math.max(filteredLeftLinks.length, filteredRightLinks.length) - 1, 0)
-
-      filteredValue = Math.max(
-        d3.sum(filteredLeftLinks, value),
-        d3.sum(filteredRightLinks, value)
-      );
-
       node.value = Math.max(
         d3.sum(node.leftLinks, value),
         d3.sum(node.rightLinks, value)
       );
       node.netFlow = d3.sum(visible(node.targetLinks), value) - d3.sum(visible(node.sourceLinks), value);
-      node.dy = filteredValue * yScaleFactor + linkSpacing * filteredLinkSpaceCount;
-      node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0)
+      node.dy = Math.max(nodeHeight(visible(node.leftLinks)), nodeHeight(visible(node.rightLinks)));
+      node.linkSpaceCount = Math.max(Math.max(node.leftLinks.length, node.rightLinks.length) - 1, 0);
     });
+  }
+
+  function nodeHeight(sideLinks) {
+    var spacing = Math.max(sideLinks.length - 1, 0) * linkSpacing;
+    var scaledValueSum = d3.sum(sideLinks, value) * yScaleFactor;
+    return scaledValueSum + spacing;
   }
 
   function computeConnectedNodes() {
