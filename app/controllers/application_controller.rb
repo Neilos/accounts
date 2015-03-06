@@ -24,9 +24,9 @@ class ApplicationController < ActionController::Base
         {"type" => "Revenue", "name" => "node10", "id"=>10, "parent" => nil},
         {"type" => "Equity", "name" => "node11", "id"=>11, "parent" => nil},
         {"type" => "Equity", "name" => "node12", "id"=>12, "parent" => nil},
-        {"type" => "Libability", "name" => "node13", "id"=>13, "parent" => nil},
-        {"type" => "Libability", "name" => "node14", "id"=>14, "parent" => nil},
-        {"type" => "Libability", "name" => "node15", "id"=>15, "parent" => nil},
+        {"type" => "Liability", "name" => "node13", "id"=>13, "parent" => nil},
+        {"type" => "Liability", "name" => "node14", "id"=>14, "parent" => nil},
+        {"type" => "Liability", "name" => "node15", "id"=>15, "parent" => nil},
       ],
       "links" => [
         {"source"=>12, "target"=>10, "value"=>21, "id"=>1},
