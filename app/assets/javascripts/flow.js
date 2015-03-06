@@ -346,6 +346,7 @@ $(document).ready(function() {
 
       sankey.relayout()
       update();
+      link.attr("d", path);
       restoreLinksAndNodes()
     }
 
