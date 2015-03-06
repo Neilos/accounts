@@ -53,7 +53,7 @@ $(document).ready(function() {
       .arrowheadScaleFactor(0.5) // Specifies that 0.5 of the link's stroke width should be allowed for the marker at the end of the link.
       .size([width, height]);
 
-  var path = sankey.link();
+  var path = sankey.link().curvature(.45);
 
   var defs = svg.append("defs");
 
