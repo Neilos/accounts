@@ -344,8 +344,7 @@ $(document).ready(function() {
         }
       }, n);
 
-      sankey.expandAndCollapse()
-
+      sankey.relayout()
       update();
       restoreLinksAndNodes()
     }

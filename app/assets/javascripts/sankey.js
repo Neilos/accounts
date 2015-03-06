@@ -98,13 +98,6 @@ d3.sankey = function() {
     return sankey;
   };
 
-  sankey.expandAndCollapse = function() {
-    computeLeftAndRightLinks();
-    computeNodeValues();
-    computeLinkYPositions()
-    return sankey;
-  }
-
   sankey.relayout = function() {
     computeLeftAndRightLinks();
     computeNodeValues();
