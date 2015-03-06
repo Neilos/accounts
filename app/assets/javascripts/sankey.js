@@ -506,14 +506,14 @@ d3.sankey = function() {
         return  discretionaryY / nodeValueSum;
       });
 
-      // Fat links are those with lengths less than about 3 times their heights
+      // Fat links are those with lengths less than about 4 times their heights
       // Fat links don't bend well
       // Test that yScaleFactor is not so big that it causes "fat" links; adjust yScaleFactor accordingly
       links.forEach(function(link) {
         var linkLength = Math.abs(link.source.x - link.target.x)
         var linkHeight = link.value * yScaleFactor;
         if (linkLength / linkHeight < 4) {
-          yScaleFactor = 0.35 * linkLength / link.value
+          yScaleFactor = 0.25 * linkLength / link.value
         }
       });
     }

@@ -26,7 +26,7 @@ $(document).ready(function() {
         left: outerMargin
       },
       width = 700 - margin.left - margin.right,
-      height = 600 - margin.top - margin.bottom;
+      height = 500 - margin.top - margin.bottom;
       units = "Widgets",
       formatNumber = function(d) {
         var numberFormat = d3.format(",.0f"); // zero decimal places
