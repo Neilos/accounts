@@ -229,8 +229,9 @@ $(document).ready(function() {
         .delay(transitionDelay)
         .duration(transitionDuration)
         .attr("transform", function(d) {
-          var endX = d.parent ? d.parent.x : d.x
-              endY = d.parent ? d.parent.y : d.y
+          var collapsedAncestor = d.ancestors.filter(function(a) { return a.state == "collapsed" })[0]
+          var endX = collapsedAncestor ? collapsedAncestor.x : d.x
+              endY = collapsedAncestor ? collapsedAncestor.y : d.y
           return "translate(" + endX + "," + endY + ")";
         })
         .remove();
@@ -396,24 +397,40 @@ $(document).ready(function() {
 
     function showHideChildren(node, i) {
       hideTooltip()
-      node.children.forEach(function(child) {
-        if (child.parent) {
-          child._parent = child.parent;
-          child.parent = null;
-          child.state = "collapsed";
-          this.state = "expanded";
-        } else {
-          child.parent = child._parent;
-          child._parent = null;
-          child.state = "contained"
-          this.state = "collapsed";
-        }
-      }, node);
+      if (node.state == "collapsed") {
+        expand(node);
+      } else {
+        collapse(node);
+      }
 
       sankey.relayout()
       update();
       link.attr("d", path);
       restoreLinksAndNodes()
+    }
+
+    function expand(node) {
+      node.state = "expanded";
+      node.children.forEach(function(child) {
+        child.state = "collapsed";
+        child._parent = this;
+        child.parent = null;
+        containChildren(child);
+      }, node);
+    }
+
+    function collapse(node) {
+      node.state = "collapsed";
+      containChildren(node);
+    }
+
+    function containChildren(node) {
+      node.children.forEach(function(child) {
+        child.state = "contained";
+        child.parent = this;
+        child._parent = null;
+        containChildren(child);
+      }, node);
     }
 
     function restoreLinksAndNodes() {
