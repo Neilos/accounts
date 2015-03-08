@@ -390,8 +390,8 @@ $(document).ready(function() {
           ) + ")"
         );
       sankey.relayout();
+      update();
       link.attr("d", path);
-      svg.select(".node").selectAll("rect").attr("height", function(d) { return d.height })
     }
 
     function showHideChildren(node, i) {
