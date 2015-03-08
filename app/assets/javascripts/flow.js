@@ -25,8 +25,8 @@ $(document).ready(function() {
         bottom: outerMargin,
         left: outerMargin
       },
-      width = 700 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = 1200 - margin.left - margin.right,
+      height = 600 - margin.top - margin.bottom;
       units = "Widgets",
       formatNumber = function(d) {
         var numberFormat = d3.format(",.0f"); // zero decimal places
@@ -84,7 +84,7 @@ $(document).ready(function() {
   // Set the sankey diagram properties
   var sankey = d3.sankey()
       .nodeWidth(nodeWidth)
-      .nodeSpacing(20)
+      .nodeSpacing(10)
       .linkSpacing(4)
       .arrowheadScaleFactor(0.5) // Specifies that 0.5 of the link's stroke width should be allowed for the marker at the end of the link.
       .size([width, height]);
