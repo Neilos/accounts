@@ -391,7 +391,7 @@ $(document).ready(function() {
           ) + ")"
         );
       sankey.relayout();
-      update();
+      svg.selectAll(".node").selectAll("rect").attr("height", function(d) { return d.height })
       link.attr("d", path);
     }
 
