@@ -30,11 +30,11 @@ $(document).ready(function() {
       units = "Widgets",
       formatNumber = function(d) {
         var numberFormat = d3.format(",.0f"); // zero decimal places
-        return numberFormat(d) + " " + units;
+        return "£" + numberFormat(d);
       },
       formatFlow = function(d) {
-        var flowFormat = d3.format("+,.0f"); // zero decimal places with sign
-        return flowFormat(d) + " " + units;
+        var flowFormat = d3.format(",.0f"); // zero decimal places with sign
+        return "£" + flowFormat(Math.abs(d)) + (d < 0 ? " CR" : " DR");
       },
       hideTooltip = function() {
         var tooltip = d3.select("#tooltip")
