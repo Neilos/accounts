@@ -276,7 +276,13 @@ $(document).ready(function() {
         })
         .style("fill-opacity", linkDefaultOpacity);
 
-      showTooltip().select(".value")
+      d3.select("#tooltip")
+        .style("left", g.x + margin.left + "px")
+        .style("top", g.y + g.height + margin.top + 15 + "px")
+        .transition()
+          .delay(transitionDelay)
+          .duration(transitionDuration)
+          .style("opacity", 1).select(".value")
           .text(function() {
             var additionalInstructions = g.children.length ? "\n(Double click to expand)" : ""
             return g.name + "\nNet flow: " + formatFlow(g.netFlow) + additionalInstructions;
