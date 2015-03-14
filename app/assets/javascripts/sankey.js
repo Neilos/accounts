@@ -229,6 +229,7 @@ d3.sankey = function() {
     links.forEach(function(link) {
       sourceNode = nodeMap[link.source] || link.source;
       targetNode = nodeMap[link.target] || link.target;
+      link.id = link.source + '-' + link.target
       link.source = sourceNode;
       link.target = targetNode;
       sourceNode.sourceLinks.push(link);
