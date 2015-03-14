@@ -1,5 +1,5 @@
-d3.sankey = function() {
-  var sankey = {},
+d3.biHiSankey = function() {
+  var biHiSankey = {},
       nodeWidth = 24,
       nodeSpacing = 8,
       linkSpacing = 5,
@@ -13,67 +13,67 @@ d3.sankey = function() {
       xScaleFactor = 1,
       yScaleFactor = 1
 
-  sankey.nodeWidth = function(_) {
+  biHiSankey.nodeWidth = function(_) {
     if (!arguments.length) return nodeWidth;
     nodeWidth = +_;
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.nodeSpacing = function(_) {
+  biHiSankey.nodeSpacing = function(_) {
     if (!arguments.length) return nodeSpacing;
     nodeSpacing = +_;
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.linkSpacing = function(_) {
+  biHiSankey.linkSpacing = function(_) {
     if (!arguments.length) return linkSpacing;
     linkSpacing = +_;
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.arrowheadScaleFactor = function(_) {
+  biHiSankey.arrowheadScaleFactor = function(_) {
     if (!arguments.length) return arrowheadScaleFactor;
     arrowheadScaleFactor = +_;
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.nodes = function(_) {
+  biHiSankey.nodes = function(_) {
     if (!arguments.length) return nodes;
     nodes = _;
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.collapsedNodes = function() {
+  biHiSankey.collapsedNodes = function() {
     return nodes.filter(function(node) { return node.state == "collapsed"; });
   };
 
-  sankey.expandedNodes = function() {
+  biHiSankey.expandedNodes = function() {
     return nodes.filter(function(node) { return node.state == "expanded"; });
   };
 
-  sankey.links = function(_) {
+  biHiSankey.links = function(_) {
     if (!arguments.length) return links;
     links = _.filter(function(link) {
       return link.source !== link.target; // filter out links that go nowhere
     });
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.visibleLinks = function() {
+  biHiSankey.visibleLinks = function() {
     return visible(links);
   };
 
-  sankey.size = function(_) {
+  biHiSankey.size = function(_) {
     if (!arguments.length) return size;
     size = _;
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.nodeMap = function() {
+  biHiSankey.nodeMap = function() {
     return nodeMap;
   };
 
-  sankey.initializeNodes = function(callback) {
+  biHiSankey.initializeNodes = function(callback) {
     initializeNodeMap();
     computeNodeHierarchy();
     computeNodeLinks();
@@ -83,10 +83,10 @@ d3.sankey = function() {
 
     nodes.forEach(callback);
 
-    return sankey;
+    return biHiSankey;
   }
 
-  sankey.layout = function(iterations) {
+  biHiSankey.layout = function(iterations) {
     computeNodeXPositions();
     computeLeftAndRightLinks();
 
@@ -95,17 +95,17 @@ d3.sankey = function() {
     computeNodeYPositions(iterations);
     computeNodeValues();
     computeLinkYPositions();
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.relayout = function() {
+  biHiSankey.relayout = function() {
     computeLeftAndRightLinks();
     computeNodeValues();
     computeLinkYPositions();
-    return sankey;
+    return biHiSankey;
   };
 
-  sankey.link = function() {
+  biHiSankey.link = function() {
     var curvature = .5;
 
     function link(d) {
@@ -163,7 +163,7 @@ d3.sankey = function() {
     return link;
   };
 
-  sankey.connected = function(nodeA, nodeB) {
+  biHiSankey.connected = function(nodeA, nodeB) {
     return nodeA.connectedNodes.indexOf(nodeB) >= 0;
   };
 
@@ -670,5 +670,5 @@ d3.sankey = function() {
     });
   }
 
-  return sankey;
+  return biHiSankey;
 };

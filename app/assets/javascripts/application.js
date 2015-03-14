@@ -14,7 +14,7 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require d3
-//= require sankey
+//= require bi_hi_sankey
 //= require_tree .
 
 

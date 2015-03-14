@@ -81,15 +81,15 @@ $(document).ready(function() {
       .append("p")
         .attr("class", "value")
 
-  // Set the sankey diagram properties
-  var sankey = d3.sankey()
+  // Set the biHiSankey diagram properties
+  var biHiSankey = d3.biHiSankey()
       .nodeWidth(nodeWidth)
       .nodeSpacing(10)
       .linkSpacing(4)
       .arrowheadScaleFactor(0.5) // Specifies that 0.5 of the link's stroke width should be allowed for the marker at the end of the link.
       .size([width, height]);
 
-  var path = sankey.link().curvature(.45);
+  var path = biHiSankey.link().curvature(.45);
 
   var defs = svg.append("defs");
 
@@ -136,7 +136,7 @@ $(document).ready(function() {
 
     // DATA JOIN
     var link = svg.select("#links").selectAll("path.link")
-        .data(sankey.visibleLinks(), function(d) { return d.id })
+        .data(biHiSankey.visibleLinks(), function(d) { return d.id })
 
     // UPDATE ONLY
     link.transition()
@@ -205,7 +205,7 @@ $(document).ready(function() {
 
     // DATA JOIN
     var node = svg.select("#nodes").selectAll(".node")
-        .data(sankey.collapsedNodes(), function(d) { return d.id })
+        .data(biHiSankey.collapsedNodes(), function(d) { return d.id })
 
     // UPDATE ONLY
     node.transition()
@@ -221,7 +221,7 @@ $(document).ready(function() {
         .delay(transitionDelay)
         .duration(transitionDuration)
         .attr("height", function(d) { return d.height; })
-        .attr("width", sankey.nodeWidth());
+        .attr("width", biHiSankey.nodeWidth());
 
     // EXIT
     node.exit()
@@ -258,7 +258,7 @@ $(document).ready(function() {
         .style("stroke", function(d) { return d3.rgb(colorScale(d.type.replace(/ .*/, ""))).darker(0.1); })
         .style("stroke-width", "1px")
         .attr("height", function(d) { return d.height; })
-        .attr("width", sankey.nodeWidth())
+        .attr("width", biHiSankey.nodeWidth())
 
     // ENTER + UPDATE
 
@@ -313,12 +313,12 @@ $(document).ready(function() {
         .attr("transform", null)
         .text(function(d) { return d.name; })
       .filter(function(d) { return d.x < width / 2; })
-        .attr("x", 6 + sankey.nodeWidth())
+        .attr("x", 6 + biHiSankey.nodeWidth())
         .attr("text-anchor", "start");
 
 
     var collapser = svg.select("#collapsers").selectAll(".collapser")
-        .data(sankey.expandedNodes(), function(d) { return d.id })
+        .data(biHiSankey.expandedNodes(), function(d) { return d.id })
 
 
     var collapserEnter = collapser.enter().append("g").attr("class", "collapser")
@@ -396,7 +396,7 @@ $(document).ready(function() {
               node.y = Math.max(0, Math.min(height - node.height, d3.event.y))
           ) + ")"
         );
-      sankey.relayout();
+      biHiSankey.relayout();
       svg.selectAll(".node").selectAll("rect").attr("height", function(d) { return d.height })
       link.attr("d", path);
     }
@@ -409,7 +409,7 @@ $(document).ready(function() {
         collapse(node);
       }
 
-      sankey.relayout()
+      biHiSankey.relayout()
       update();
       link.attr("d", path);
       restoreLinksAndNodes()
@@ -494,7 +494,7 @@ $(document).ready(function() {
           .style("opacity", linkFadedOpacity);
 
       node.filter(function(d) {
-          return (d.name == g.name) ? false : !sankey.connected(d, g)
+          return (d.name == g.name) ? false : !biHiSankey.connected(d, g)
         })
         .transition()
           .delay(transitionDelay)
@@ -506,7 +506,7 @@ $(document).ready(function() {
 
 
   d3.json("sankey-formatted.json", function(error, graph) {
-    sankey
+    biHiSankey
       .nodes(graph.nodes)
       .links(graph.links)
       .initializeNodes(function(node) { node.state = node.parent ? "contained" : "collapsed"})
@@ -528,7 +528,7 @@ $(document).ready(function() {
         .attr('pointer-events', 'none')
 
       setTimeout(function() {
-        sankey
+        biHiSankey
           .nodes(graph.nodes)
           .links(graph.links)
           .initializeNodes(function(node) { node.state = node.parent ? "contained" : "collapsed" })
