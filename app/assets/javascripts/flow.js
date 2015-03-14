@@ -196,11 +196,11 @@ $(document).ready(function() {
         })
         .style("stroke", linkColor)
         .style("opacity", 0)
-        .attr("d", path)
-        .style("stroke-width", function(d) { return Math.max(1, d.thickness); })
       .transition()
         .delay(transitionDelay + transitionDuration)
         .duration(transitionDuration)
+        .attr("d", path)
+        .style("stroke-width", function(d) { return Math.max(1, d.thickness); })
         .style("opacity", linkDefaultOpacity)
 
     // DATA JOIN
