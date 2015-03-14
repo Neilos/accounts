@@ -520,12 +520,12 @@ $(document).ready(function() {
       d3.select('path.link')
         .interrupt() // interrupt current transition if any
         .transition() // preempt scheduled transitions if any
-        .attr('pointer-events', 'none')
+        .attr('pointer-events', 'none') // disable mouse interractions
 
       d3.select('.node')
         .interrupt() // interrupt current transition if any
         .transition() // preempt scheduled transitions if any
-        .attr('pointer-events', 'none')
+        .attr('pointer-events', 'none') // disable mouse interractions
 
       setTimeout(function() {
         biHiSankey
@@ -540,14 +540,14 @@ $(document).ready(function() {
           d3.select('path.link')
             .interrupt() // interrupt current transition if any
             .transition() // preempt scheduled transitions if any
-            .attr('pointer-events', 'all')
+            .attr('pointer-events', 'all') // re-enable mouse interractions
 
           d3.select('.node')
             .interrupt() // interrupt current transition if any
             .transition() // preempt scheduled transitions if any
-            .attr('pointer-events', 'all')
-        }, transitionDelay + transitionDuration + 200)
-      }, transitionDelay + transitionDuration + 200)
+            .attr('pointer-events', 'all') // re-enable mouse interractions
+        }, transitionDelay + transitionDuration  + 200)
+      }, transitionDelay + transitionDuration  + 200)
 
     });
   }, 7000);
