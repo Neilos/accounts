@@ -142,7 +142,7 @@ $(document).ready(function() {
     link.transition()
         .delay(transitionDelay)
         .duration(transitionDuration)
-        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+        .style("stroke-width", function(d) { return Math.max(1, d.thickness); })
         .attr("d", path)
         .style("opacity", linkDefaultOpacity)
 
