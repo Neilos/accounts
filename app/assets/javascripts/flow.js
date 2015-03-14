@@ -12,7 +12,6 @@ $(document).ready(function() {
       positiveFlowColor = "#2E86D1",
       negativeFlowColor = "#D63028",
       linkColor = "#b3b3b3",
-      transitionDelay = 0,
       transitionDuration = 400,
       nodeWidth = 36,
       collapserRadius = nodeWidth / 2,
@@ -39,7 +38,6 @@ $(document).ready(function() {
       hideTooltip = function() {
         var tooltip = d3.select("#tooltip")
           .transition()
-            .delay(transitionDelay)
             .duration(transitionDuration)
             .style("opacity", 0);
         return tooltip;
@@ -49,7 +47,6 @@ $(document).ready(function() {
           .style("left", d3.event.pageX + "px")
           .style("top", d3.event.pageY + 15 + "px")
           .transition()
-            .delay(transitionDelay)
             .duration(transitionDuration)
             .style("opacity", 1)
         return tooltip;
@@ -140,7 +137,6 @@ $(document).ready(function() {
 
     // UPDATE ONLY
     link.transition()
-        .delay(transitionDelay)
         .duration(transitionDuration)
         .style("stroke-width", function(d) { return Math.max(1, d.thickness); })
         .attr("d", path)
@@ -167,7 +163,6 @@ $(document).ready(function() {
         d3.select(this)
           .style("stroke", linkColor)
           .transition()
-            .delay(transitionDelay)
             .duration(transitionDuration / 2)
             .style("opacity", linkHighlightedOpacity)
       })
@@ -178,7 +173,6 @@ $(document).ready(function() {
         d3.select(this)
           .style("stroke", linkColor)
           .transition()
-            .delay(transitionDelay)
             .duration(transitionDuration / 2)
             .style("opacity", linkDefaultOpacity)
       });
@@ -197,7 +191,7 @@ $(document).ready(function() {
         .style("stroke", linkColor)
         .style("opacity", 0)
       .transition()
-        .delay(transitionDelay + transitionDuration)
+        .delay(transitionDuration)
         .duration(transitionDuration)
         .attr("d", path)
         .style("stroke-width", function(d) { return Math.max(1, d.thickness); })
@@ -209,7 +203,6 @@ $(document).ready(function() {
 
     // UPDATE ONLY
     node.transition()
-        .delay(transitionDelay)
         .duration(transitionDuration)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
         .style("opacity", nodeDefaultOpacity)
@@ -217,16 +210,12 @@ $(document).ready(function() {
         .style("fill", function(d) { return d.color = colorScale(d.type.replace(/ .*/, "")); })
         .style("stroke", function(d) { return d3.rgb(colorScale(d.type.replace(/ .*/, ""))).darker(0.1); })
         .style("stroke-width", "1px")
-      .transition()
-        .delay(transitionDelay)
-        .duration(transitionDuration)
         .attr("height", function(d) { return d.height; })
         .attr("width", biHiSankey.nodeWidth());
 
     // EXIT
     node.exit()
       .transition()
-        .delay(transitionDelay)
         .duration(transitionDuration)
         .attr("transform", function(d) {
           var collapsedAncestor = d.ancestors.filter(function(a) { return a.state == "collapsed" })[0]
@@ -247,7 +236,6 @@ $(document).ready(function() {
       })
       .style("opacity", 1e-6)
       .transition()
-        .delay(transitionDelay)
         .duration(transitionDuration)
         .style("opacity", nodeDefaultOpacity)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
@@ -280,7 +268,6 @@ $(document).ready(function() {
         .style("left", g.x + margin.left + "px")
         .style("top", g.y + g.height + margin.top + 15 + "px")
         .transition()
-          .delay(transitionDelay)
           .duration(transitionDuration)
           .style("opacity", 1).select(".value")
           .text(function() {
@@ -339,7 +326,7 @@ $(document).ready(function() {
       .attr("r", collapserRadius)
 
     collapser.transition()
-        .delay(transitionDelay + transitionDuration)
+        .delay(transitionDuration)
         .duration(transitionDuration)
         .attr("transform", function(d, i) {
           return "translate("
@@ -446,7 +433,6 @@ $(document).ready(function() {
             return 'url(#arrowHead)'
           })
           .transition()
-            .delay(transitionDelay)
             .duration(transitionDuration)
             .style("opacity", linkDefaultOpacity);
 
@@ -462,7 +448,6 @@ $(document).ready(function() {
 
         node.filter(function(n) { return n.state == "collapsed" })
           .transition()
-            .delay(transitionDelay)
             .duration(transitionDuration)
             .style("opacity", nodeDefaultOpacity);
     }
@@ -489,7 +474,6 @@ $(document).ready(function() {
             return 'url(#arrowHead)'
           })
         .transition()
-          .delay(transitionDelay)
           .duration(transitionDuration)
           .style("opacity", linkFadedOpacity);
 
@@ -497,7 +481,6 @@ $(document).ready(function() {
           return (d.name == g.name) ? false : !biHiSankey.connected(d, g)
         })
         .transition()
-          .delay(transitionDelay)
           .duration(transitionDuration)
           .style("opacity", nodeFadedOpacity);
     }
@@ -546,8 +529,8 @@ $(document).ready(function() {
             .interrupt() // interrupt current transition if any
             .transition() // preempt scheduled transitions if any
             .attr('pointer-events', 'all') // re-enable mouse interractions
-        }, transitionDelay + transitionDuration  + 200)
-      }, transitionDelay + transitionDuration  + 200)
+        }, transitionDuration  + 200)
+      }, transitionDuration  + 200)
 
     });
   }, 7000);
