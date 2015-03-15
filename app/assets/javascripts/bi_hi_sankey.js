@@ -630,10 +630,6 @@ d3.biHiSankey = function () {
     return biHiSankey;
   };
 
-  biHiSankey.nodeMap = function () {
-    return nodeMap;
-  };
-
   biHiSankey.nodes = function (_) {
     if (!arguments.length) { return nodes; }
     nodes = _;
